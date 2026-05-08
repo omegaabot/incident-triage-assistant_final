@@ -1,0 +1,9 @@
+{
+  "type": "system_monitoring",
+  "service": "user-service",
+  "cpu_usage": 40,
+  "memory_usage": 50,
+  "error_rate": 10,
+  "response_time": 300,
+  "status": "healthy"
+}

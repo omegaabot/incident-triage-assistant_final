@@ -1,0 +1,9 @@
+{
+  "type": "system_monitoring",
+  "service": "payment-api",
+  "cpu_usage": 92,
+  "memory_usage": 85,
+  "error_rate": 60,
+  "response_time": 1200,
+  "status": "degraded"
+}

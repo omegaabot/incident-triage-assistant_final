@@ -1,0 +1,998 @@
+==================================================
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 11:28:47
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 12:38:18
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 12:38:35
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 12:38:54
+Service       : user-service
+Status        : healthy
+Final Severity: LOW
+Priority Score: 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📋 Checklist:
+[ ] System is healthy
+==================================================
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 15:01:43
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 15:01:43
+Service       : user-service
+Status        : healthy
+Final Severity: LOW
+Priority Score: 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📋 Checklist:
+[ ] System is healthy
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 15:11:06
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📘 Runbook Suggestions:
+
+High CPU Usage:
+  - Restart service
+  - Check running processes
+  - Scale infrastructure
+
+High Error Rate:
+  - Check logs
+  - Validate API endpoints
+  - Debug recent changes
+
+Slow Response:
+  - Optimize database queries
+  - Check network latency
+
+High Memory Usage:
+  - Check memory leaks
+  - Restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-06 15:11:06
+Service       : user-service
+Status        : healthy
+Final Severity: LOW
+Priority Score: 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Checklist:
+[ ] System is healthy
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-08 09:16:35
+Service       : payment-api
+Status        : degraded
+Final Severity: HIGH
+Priority Score: 10
+
+⚠ Issues Found:
+- CPU usage is critically high
+- Too many errors detected
+- Response time is slow
+- Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📘 Runbook Suggestions:
+
+High CPU Usage:
+  - Restart service
+  - Check running processes
+  - Scale infrastructure
+
+High Error Rate:
+  - Check logs
+  - Validate API endpoints
+  - Debug recent changes
+
+Slow Response:
+  - Optimize database queries
+  - Check network latency
+
+High Memory Usage:
+  - Check memory leaks
+  - Restart service
+
+📋 Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+==================================================
+
+==================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+==================================================
+Time          : 2026-05-08 09:16:35
+Service       : user-service
+Status        : healthy
+Final Severity: LOW
+Priority Score: 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Checklist:
+[ ] System is healthy
+==================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : auth-service
+Status            : under_attack
+Final Severity    : HIGH
+Priority Score    : 3
+Matched Incidents : 1
+
+⚠ Issues Found:
+- [HIGH] Possible brute force attack detected
+
+✅ Suggested Actions:
+- Block suspicious IPs and enable rate limiting
+
+📘 Runbook Suggestions:
+
+Brute Force Attack:
+   • Block suspicious IP addresses
+   • Enable rate limiting
+   • Enable account lockout policies
+   • Review authentication logs
+   • Enable multi-factor authentication
+
+📋 Incident Checklist:
+[ ] Brute Force Attack
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : api-gateway
+Status            : under_attack
+Final Severity    : HIGH
+Priority Score    : 7
+Matched Incidents : 3
+
+⚠ Issues Found:
+- [MEDIUM] Response time is slow
+- [HIGH] Possible DDoS attack detected
+- [MEDIUM] Network latency is unusually high
+
+✅ Suggested Actions:
+- Optimize database queries
+- Enable DDoS protection and traffic filtering
+- Check network infrastructure and traffic
+
+📘 Runbook Suggestions:
+
+Slow Response:
+   • Optimize database queries
+   • Check network latency
+   • Analyze slow API endpoints
+   • Restart overloaded services
+
+DDoS Attack:
+   • Enable DDoS protection
+   • Filter malicious traffic
+   • Block suspicious IP ranges
+   • Scale infrastructure temporarily
+   • Monitor traffic spikes
+
+High Network Latency:
+   • Check network infrastructure
+   • Analyze bandwidth usage
+   • Restart network devices
+   • Verify ISP connectivity
+   • Monitor packet loss
+
+📋 Incident Checklist:
+[ ] Slow Response
+[ ] DDoS Attack
+[ ] High Network Latency
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : firewall-system
+Status            : critical
+Final Severity    : HIGH
+Priority Score    : 3
+Matched Incidents : 1
+
+⚠ Issues Found:
+- [HIGH] Firewall intrusion attempts detected
+
+✅ Suggested Actions:
+- Review firewall logs and block malicious traffic
+
+📘 Runbook Suggestions:
+
+Firewall Breach:
+   • Review firewall logs
+   • Block malicious traffic
+   • Verify firewall rules
+   • Isolate affected systems
+   • Alert security team
+
+📋 Incident Checklist:
+[ ] Firewall Breach
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : network-firewall
+Status            : security_alert
+Final Severity    : MEDIUM
+Priority Score    : 2
+Matched Incidents : 1
+
+⚠ Issues Found:
+- [MEDIUM] Port scanning activity detected
+
+✅ Suggested Actions:
+- Block suspicious IP addresses
+
+📘 Runbook Suggestions:
+
+Port Scanning Activity:
+   • Block suspicious IP addresses
+   • Enable intrusion detection systems
+   • Monitor unusual network activity
+   • Review open ports
+
+📋 Incident Checklist:
+[ ] Port Scanning Activity
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : payment-api
+Status            : degraded
+Final Severity    : HIGH
+Priority Score    : 10
+Matched Incidents : 4
+
+⚠ Issues Found:
+- [HIGH] CPU usage is critically high
+- [HIGH] Too many errors detected
+- [MEDIUM] Response time is slow
+- [MEDIUM] Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📘 Runbook Suggestions:
+
+High CPU Usage:
+   • Restart service
+   • Check running processes
+   • Scale infrastructure
+   • Analyze CPU-intensive tasks
+
+High Error Rate:
+   • Check logs
+   • Validate API endpoints
+   • Debug recent changes
+   • Verify database connectivity
+
+Slow Response:
+   • Optimize database queries
+   • Check network latency
+   • Analyze slow API endpoints
+   • Restart overloaded services
+
+High Memory Usage:
+   • Check memory leaks
+   • Restart service
+   • Analyze memory-consuming applications
+   • Increase memory resources if needed
+
+📋 Incident Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : user-service
+Status            : healthy
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 10:28:18
+Service           : admin-dashboard
+Status            : security_warning
+Final Severity    : HIGH
+Priority Score    : 6
+Matched Incidents : 2
+
+⚠ Issues Found:
+- [HIGH] Possible brute force attack detected
+- [HIGH] Unauthorized access attempts detected
+
+✅ Suggested Actions:
+- Block suspicious IPs and enable rate limiting
+- Review authentication logs and secure accounts
+
+📘 Runbook Suggestions:
+
+Brute Force Attack:
+   • Block suspicious IP addresses
+   • Enable rate limiting
+   • Enable account lockout policies
+   • Review authentication logs
+   • Enable multi-factor authentication
+
+Unauthorized Access:
+   • Reset compromised accounts
+   • Review authentication logs
+   • Enable MFA
+   • Restrict suspicious users
+   • Audit access permissions
+
+📋 Incident Checklist:
+[ ] Brute Force Attack
+[ ] Unauthorized Access
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : auth-service
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : api-gateway
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : firewall-system
+Status            : critical
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : network-firewall
+Status            : security_alert
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : payment-api
+Status            : degraded
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:31
+Service           : user-service
+Status            : healthy
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 11:32:32
+Service           : admin-dashboard
+Status            : security_warning
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:05:25
+Service           : api-gateway
+Type              : None
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:08:27
+Service           : firewall-system
+Type              : None
+Status            : critical
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:10:45
+Service           : auth-service
+Type              : None
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:11:10
+Service           : auth-service
+Type              : None
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:11:16
+Service           : firewall-system
+Type              : None
+Status            : critical
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:11:19
+Service           : api-gateway
+Type              : None
+Status            : under_attack
+Final Severity    : LOW
+Priority Score    : 0
+Matched Incidents : 0
+
+⚠ Issues Found:
+No issues detected
+
+✅ Suggested Actions:
+No action needed
+
+📘 Runbook Suggestions:
+No runbook actions needed
+
+📋 Incident Checklist:
+[ ] System is healthy
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:24:15
+Service           : api-gateway
+Type              : ddos_attack
+Status            : under_attack
+Final Severity    : HIGH
+Priority Score    : 3
+Matched Incidents : 1
+
+⚠ Issues Found:
+- [HIGH] Possible DDoS attack detected
+
+✅ Suggested Actions:
+- Enable DDoS protection and traffic filtering
+
+📘 Runbook Suggestions:
+
+DDoS Attack:
+   • Enable DDoS protection
+   • Filter malicious traffic
+   • Block suspicious IP ranges
+   • Scale infrastructure temporarily
+   • Monitor traffic spikes
+
+📋 Incident Checklist:
+[ ] DDoS Attack
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+
+============================================================
+🚨 INCIDENT TRIAGE REPORT 🚨
+============================================================
+Time              : 2026-05-08 12:29:33
+Service           : payment-api
+Type              : system_monitoring
+Status            : degraded
+Final Severity    : HIGH
+Priority Score    : 10
+Matched Incidents : 4
+
+⚠ Issues Found:
+- [HIGH] CPU usage is critically high
+- [HIGH] Too many errors detected
+- [MEDIUM] Response time is slow
+- [MEDIUM] Memory usage is high
+
+✅ Suggested Actions:
+- Restart service or scale infrastructure
+- Check logs and API endpoints
+- Optimize database queries
+- Check memory leaks or restart service
+
+📘 Runbook Suggestions:
+
+High CPU Usage:
+   • Restart service
+   • Check running processes
+   • Scale infrastructure
+   • Analyze CPU-intensive tasks
+
+High Error Rate:
+   • Check logs
+   • Validate API endpoints
+   • Debug recent changes
+   • Verify database connectivity
+
+Slow Response:
+   • Optimize database queries
+   • Check network latency
+   • Analyze slow API endpoints
+   • Restart overloaded services
+
+High Memory Usage:
+   • Check memory leaks
+   • Restart service
+   • Analyze memory-consuming applications
+   • Increase memory resources if needed
+
+📋 Incident Checklist:
+[ ] High CPU Usage
+[ ] High Error Rate
+[ ] Slow Response
+[ ] High Memory Usage
+
+============================================================
+✅ TRIAGE PROCESS COMPLETED
+============================================================
+

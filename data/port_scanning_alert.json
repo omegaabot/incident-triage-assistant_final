@@ -1,0 +1,8 @@
+{
+  "type": "port_scanning",
+  "service": "network-firewall",
+  "status": "security_alert",
+  "port_scan_attempts": 450,
+  "suspicious_ip_count": 32,
+  "blocked_ips": 18
+}

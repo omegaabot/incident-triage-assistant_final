@@ -1,0 +1,95 @@
+{
+  "rules": [
+
+    {
+      "name": "High CPU Usage",
+      "type": "system_monitoring",
+      "condition": "cpu_usage > 90",
+      "severity": "HIGH",
+      "message": "CPU usage is critically high",
+      "action": "Restart service or scale infrastructure"
+    },
+
+    {
+      "name": "High Error Rate",
+      "type": "system_monitoring",
+      "condition": "error_rate > 50",
+      "severity": "HIGH",
+      "message": "Too many errors detected",
+      "action": "Check logs and API endpoints"
+    },
+
+    {
+      "name": "Slow Response",
+      "type": "system_monitoring",
+      "condition": "response_time > 1000",
+      "severity": "MEDIUM",
+      "message": "Response time is slow",
+      "action": "Optimize database queries"
+    },
+
+    {
+      "name": "High Memory Usage",
+      "type": "system_monitoring",
+      "condition": "memory_usage > 80",
+      "severity": "MEDIUM",
+      "message": "Memory usage is high",
+      "action": "Check memory leaks or restart service"
+    },
+
+    {
+      "name": "Brute Force Attack",
+      "type": "bruteforce_attack",
+      "condition": "failed_login_attempts > 200",
+      "severity": "HIGH",
+      "message": "Possible brute force attack detected",
+      "action": "Block suspicious IPs and enable rate limiting"
+    },
+
+    {
+      "name": "DDoS Attack",
+      "type": "ddos_attack",
+      "condition": "requests_per_second > 10000",
+      "severity": "HIGH",
+      "message": "Possible DDoS attack detected",
+      "action": "Enable DDoS protection and traffic filtering"
+    },
+
+    {
+      "name": "Firewall Breach",
+      "type": "firewall_breach",
+      "condition": "intrusion_attempts > 50",
+      "severity": "HIGH",
+      "message": "Firewall intrusion attempts detected",
+      "action": "Review firewall logs and block malicious traffic"
+    },
+
+    {
+      "name": "Port Scanning Activity",
+      "type": "port_scanning",
+      "condition": "port_scan_attempts > 100",
+      "severity": "MEDIUM",
+      "message": "Port scanning activity detected",
+      "action": "Block suspicious IP addresses"
+    },
+
+    {
+      "name": "Unauthorized Access",
+      "type": "unauthorized_access",
+      "condition": "unauthorized_access_attempts > 50",
+      "severity": "HIGH",
+      "message": "Unauthorized access attempts detected",
+      "action": "Review authentication logs and secure accounts"
+    },
+
+    {
+      "name": "High Network Latency",
+      "type": "network_latency",
+      "condition": "network_latency > 500",
+      "severity": "MEDIUM",
+      "message": "Network latency is unusually high",
+      "action": "Check network infrastructure and traffic"
+    }
+
+  ]
+}

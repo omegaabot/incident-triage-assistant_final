@@ -1,0 +1,9 @@
+{
+  "type": "ddos_attack",
+  "service": "api-gateway",
+  "status": "under_attack",
+  "requests_per_second": 25000,
+  "network_latency": 1200,
+  "packet_loss": 40,
+  "response_time": 2000
+}

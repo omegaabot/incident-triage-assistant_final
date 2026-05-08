@@ -1,0 +1,8 @@
+{
+  "type": "firewall_breach",
+  "service": "firewall-system",
+  "status": "critical",
+  "intrusion_attempts": 75,
+  "malicious_packets_detected": 1200,
+  "blocked_connections": 500
+}

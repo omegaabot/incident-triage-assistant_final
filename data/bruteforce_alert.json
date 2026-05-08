@@ -1,0 +1,8 @@
+{
+  "type": "bruteforce_attack",
+  "service": "auth-service",
+  "status": "under_attack",
+  "failed_login_attempts": 500,
+  "blocked_ips": 45,
+  "response_time": 450
+}
