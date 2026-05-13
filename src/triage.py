@@ -5,11 +5,21 @@ from datetime import datetime
 from colorama import Fore, Style, init
 
 from rule_engine import load_rules, apply_rules
+from escalation import map_severity
+
+from engineer import (
+    get_oncall_engineer,
+    notify_oncall_engineer
+)
+
+from notification import send_email_notification
 
 init(autoreset=True)
 
 
-# Severity calculation
+# ==========================================
+# FINAL SEVERITY CALCULATION
+# ==========================================
 def get_final_severity(results):
 
     if any(r["severity"] == "HIGH" for r in results):
@@ -22,7 +32,9 @@ def get_final_severity(results):
         return "LOW"
 
 
-# Priority calculation
+# ==========================================
+# PRIORITY SCORE
+# ==========================================
 def calculate_priority(results):
 
     score = 0
@@ -30,25 +42,43 @@ def calculate_priority(results):
     for r in results:
 
         if r["severity"] == "HIGH":
-            score += 3
+            score += 1
 
         elif r["severity"] == "MEDIUM":
             score += 2
 
         else:
-            score += 1
+            score += 3
 
     return score
 
 
-# Load alert JSON
+# ==========================================
+# FALSE POSITIVE DETECTION
+# ==========================================
+def detect_false_positive(alert, results):
+
+    if len(results) == 0:
+        return True
+
+    if alert.get("status") == "healthy":
+        return True
+
+    return False
+
+
+# ==========================================
+# LOAD ALERT JSON
+# ==========================================
 def load_alert(file_path):
 
     with open(file_path, 'r') as f:
         return json.load(f)
 
 
-# Load runbook
+# ==========================================
+# LOAD RUNBOOK
+# ==========================================
 def load_runbook():
 
     runbook = {}
@@ -62,7 +92,11 @@ def load_runbook():
 
             if line.startswith("##"):
 
-                current_section = line.replace("##", "").strip()
+                current_section = line.replace(
+                    "##",
+                    ""
+                ).strip()
+
                 runbook[current_section] = []
 
             elif line.startswith("-") and current_section:
@@ -74,10 +108,19 @@ def load_runbook():
     return runbook
 
 
-# Generate report
+# ==========================================
+# GENERATE REPORT
+# ==========================================
 def generate_report(alert, results):
 
     severity = get_final_severity(results)
+
+    escalation_level = map_severity(severity)
+
+    engineer = get_oncall_engineer(
+        escalation_level
+    )
+
     priority = calculate_priority(results)
 
     timestamp = datetime.now().strftime(
@@ -86,23 +129,73 @@ def generate_report(alert, results):
 
     runbook = load_runbook()
 
+    false_positive = detect_false_positive(
+        alert,
+        results
+    )
+
     report_lines = []
 
-    # Header
+    # ==========================================
+    # HEADER
+    # ==========================================
     report_lines.append("=" * 60)
     report_lines.append("🚨 INCIDENT TRIAGE REPORT 🚨")
     report_lines.append("=" * 60)
 
-    # Summary
+    # ==========================================
+    # INCIDENT SUMMARY
+    # ==========================================
     report_lines.append(f"Time              : {timestamp}")
     report_lines.append(f"Service           : {alert.get('service')}")
     report_lines.append(f"Type              : {alert.get('type')}")
     report_lines.append(f"Status            : {alert.get('status')}")
     report_lines.append(f"Final Severity    : {severity}")
+    report_lines.append(f"Escalation Level  : {escalation_level}")
     report_lines.append(f"Priority Score    : {priority}")
     report_lines.append(f"Matched Incidents : {len(results)}")
 
-    # Issues
+    # ==========================================
+    # FALSE POSITIVE
+    # ==========================================
+    report_lines.append("\n🛡 False Positive Detection:")
+
+    if false_positive:
+
+        report_lines.append(
+            "Possible False Positive Alert"
+        )
+
+    else:
+
+        report_lines.append(
+            "Valid Security Incident"
+        )
+
+    # ==========================================
+    # ON-CALL ENGINEER
+    # ==========================================
+    report_lines.append("\n📞 On-Call Engineer:")
+
+    report_lines.append(
+        f"Name              : {engineer['name']}"
+    )
+
+    report_lines.append(
+        f"Team              : {engineer['team']}"
+    )
+
+    report_lines.append(
+        f"Contact Email     : {engineer['email']}"
+    )
+
+    report_lines.append(
+        f"Phone             : {engineer['phone']}"
+    )
+
+    # ==========================================
+    # ISSUES FOUND
+    # ==========================================
     report_lines.append("\n⚠ Issues Found:")
 
     if results:
@@ -114,21 +207,36 @@ def generate_report(alert, results):
             )
 
     else:
-        report_lines.append("No issues detected")
 
-    # Actions
+        report_lines.append(
+            "No issues detected"
+        )
+
+    # ==========================================
+    # SUGGESTED ACTIONS
+    # ==========================================
     report_lines.append("\n✅ Suggested Actions:")
 
     if results:
 
         for r in results:
-            report_lines.append(f"- {r['action']}")
+
+            report_lines.append(
+                f"- {r['action']}"
+            )
 
     else:
-        report_lines.append("No action needed")
 
-    # Runbook
-    report_lines.append("\n📘 Runbook Suggestions:")
+        report_lines.append(
+            "No action needed"
+        )
+
+    # ==========================================
+    # RUNBOOK SUGGESTIONS
+    # ==========================================
+    report_lines.append(
+        "\n📘 Runbook Suggestions:"
+    )
 
     if results:
 
@@ -138,69 +246,156 @@ def generate_report(alert, results):
 
             if title in runbook:
 
-                report_lines.append(f"\n{title}:")
+                report_lines.append(
+                    f"\n{title}:"
+                )
 
                 for step in runbook[title]:
-                    report_lines.append(f"   • {step}")
+
+                    report_lines.append(
+                        f"   • {step}"
+                    )
 
     else:
-        report_lines.append("No runbook actions needed")
 
-    # Checklist
-    report_lines.append("\n📋 Incident Checklist:")
+        report_lines.append(
+            "No runbook actions needed"
+        )
+
+    # ==========================================
+    # INCIDENT CHECKLIST
+    # ==========================================
+    report_lines.append(
+        "\n📋 Incident Checklist:"
+    )
 
     if results:
 
         for r in results:
-            report_lines.append(f"[ ] {r['name']}")
+
+            report_lines.append(
+                f"[ ] {r['name']}"
+            )
 
     else:
-        report_lines.append("[ ] System is healthy")
 
-    # Footer
+        report_lines.append(
+            "[ ] System is healthy"
+        )
+
+    # ==========================================
+    # FOOTER
+    # ==========================================
     report_lines.append("\n" + "=" * 60)
-    report_lines.append("✅ TRIAGE PROCESS COMPLETED")
+
+    report_lines.append(
+        "✅ TRIAGE PROCESS COMPLETED"
+    )
+
     report_lines.append("=" * 60 + "\n")
 
-    # Console output
+    # ==========================================
+    # CONSOLE OUTPUT
+    # ==========================================
     for line in report_lines:
 
         if "INCIDENT TRIAGE REPORT" in line:
-            print(Fore.RED + Style.BRIGHT + line)
+
+            print(
+                Fore.RED +
+                Style.BRIGHT +
+                line
+            )
 
         elif "Final Severity" in line:
 
             if severity == "HIGH":
+
                 print(Fore.RED + line)
 
             elif severity == "MEDIUM":
+
                 print(Fore.YELLOW + line)
 
             else:
+
                 print(Fore.GREEN + line)
 
+        elif "Escalation Level" in line:
+
+            print(
+                Fore.MAGENTA +
+                Style.BRIGHT +
+                line
+            )
+
+        elif "False Positive" in line:
+
+            print(
+                Fore.YELLOW +
+                Style.BRIGHT +
+                line
+            )
+
+        elif "On-Call Engineer" in line:
+
+            print(
+                Fore.CYAN +
+                Style.BRIGHT +
+                line
+            )
+
         elif "Priority Score" in line:
+
             print(Fore.MAGENTA + line)
 
         elif "Issues Found" in line:
-            print(Fore.RED + Style.BRIGHT + line)
+
+            print(
+                Fore.RED +
+                Style.BRIGHT +
+                line
+            )
 
         elif "Suggested Actions" in line:
-            print(Fore.GREEN + Style.BRIGHT + line)
+
+            print(
+                Fore.GREEN +
+                Style.BRIGHT +
+                line
+            )
 
         elif "Runbook Suggestions" in line:
-            print(Fore.BLUE + Style.BRIGHT + line)
+
+            print(
+                Fore.BLUE +
+                Style.BRIGHT +
+                line
+            )
 
         elif "Checklist" in line:
-            print(Fore.CYAN + Style.BRIGHT + line)
+
+            print(
+                Fore.CYAN +
+                Style.BRIGHT +
+                line
+            )
 
         elif "TRIAGE PROCESS COMPLETED" in line:
-            print(Fore.GREEN + Style.BRIGHT + line)
+
+            print(
+                Fore.GREEN +
+                Style.BRIGHT +
+                line
+            )
 
         else:
+
             print(line)
 
-    # Save report
+    # ==========================================
+    # SAVE REPORT
+    # ==========================================
     with open(
         "../output/reports.txt",
         "a",
@@ -208,7 +403,25 @@ def generate_report(alert, results):
     ) as f:
 
         for line in report_lines:
+
             f.write(line + "\n")
+
+    # ==========================================
+    # EMAIL NOTIFICATION
+    # ==========================================
+    send_email_notification(
+        engineer,
+        alert,
+        escalation_level
+    )
+
+    # ==========================================
+    # NOTIFY ENGINEER
+    # ==========================================
+    notify_oncall_engineer(
+        engineer,
+        escalation_level
+    )
 
 
 # ==========================================
@@ -219,24 +432,32 @@ def process_single_file(alert_file, rules):
     try:
 
         print(Fore.CYAN + Style.BRIGHT)
-        print("=" * 60)
-        print(f"📂 Processing Single Alert")
+
         print("=" * 60)
 
-        # Load alert
+        print("📂 Processing Single Alert")
+
+        print("=" * 60)
+
         alert = load_alert(alert_file)
 
-        # Apply rules
         results = apply_rules(alert, rules)
 
-        # Generate report
         generate_report(alert, results)
 
     except FileNotFoundError:
-        print(Fore.RED + "❌ Alert file not found")
+
+        print(
+            Fore.RED +
+            "❌ Alert file not found"
+        )
 
     except Exception as e:
-        print(Fore.RED + f"❌ Error: {e}")
+
+        print(
+            Fore.RED +
+            f"❌ Error: {e}"
+        )
 
 
 # ==========================================
@@ -249,15 +470,21 @@ def process_all_files(rules):
     files = os.listdir(data_folder)
 
     print(Fore.CYAN + Style.BRIGHT)
+
     print("=" * 60)
+
     print("📂 PROCESSING ALL ALERT FILES")
+
     print("=" * 60)
 
     for file in files:
 
         if file.endswith(".json"):
 
-            print(Fore.BLUE + f"\n📄 Processing: {file}")
+            print(
+                Fore.BLUE +
+                f"\n📄 Processing: {file}"
+            )
 
             alert_path = os.path.join(
                 data_folder,
@@ -266,13 +493,10 @@ def process_all_files(rules):
 
             try:
 
-                # Load alert
                 alert = load_alert(alert_path)
 
-                # Apply rules
                 results = apply_rules(alert, rules)
 
-                # Generate report
                 generate_report(alert, results)
 
             except Exception as e:
@@ -290,33 +514,39 @@ def process_all_files(rules):
 # ==========================================
 def main():
 
-    rules = load_rules("../rules/rules.json")
+    rules = load_rules(
+        "../rules/rules.json"
+    )
 
-    # No arguments
     if len(sys.argv) < 2:
 
-        print(Fore.RED + "❌ Please provide input")
+        print(
+            Fore.RED +
+            "❌ Please provide input"
+        )
 
         print("\nUsage:")
 
         print("\n1️⃣ Run single alert:")
+
         print(
             "python triage.py ../data/ddos_attack.json"
         )
 
         print("\n2️⃣ Run all alerts:")
-        print("python triage.py all")
+
+        print(
+            "python triage.py all"
+        )
 
         return
 
     user_input = sys.argv[1]
 
-    # Run all files
     if user_input.lower() == "all":
 
         process_all_files(rules)
 
-    # Run single file
     else:
 
         process_single_file(
@@ -325,6 +555,9 @@ def main():
         )
 
 
-# Run application
+# ==========================================
+# RUN APPLICATION
+# ==========================================
 if __name__ == "__main__":
+
     main()

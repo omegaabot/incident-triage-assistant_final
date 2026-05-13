@@ -1,6 +1,5 @@
 import json
 
-
 # Load rules from JSON file
 def load_rules(file_path):
     with open(file_path, 'r') as f:
