@@ -1,0 +1,74 @@
+[
+  {
+    "type": "ddos_attack",
+    "service": "checkout-gateway",
+    "environment": "production",
+    "status": "under_attack",
+    "requests_per_second": 12500,
+    "network_latency": 1500,
+    "packet_loss": 35,
+    "description": "[Scenario 1: True Positive Critical DDoS] Massive incoming traffic spike from overseas botnet causing core network latency and severe packet drops."
+  },
+  {
+    "type": "system_monitoring",
+    "service": "payment-api",
+    "environment": "production",
+    "status": "degraded",
+    "cpu_usage": 94,
+    "memory_usage": 85,
+    "error_rate": 58,
+    "response_time": 1400,
+    "description": "[Scenario 2: True Positive High CPU & Memory] CPU spikes above 90% and memory above 80% leading to increased API error rates."
+  },
+  {
+    "type": "system_monitoring",
+    "service": "payment-api",
+    "environment": "production",
+    "status": "degraded",
+    "cpu_usage": 98,
+    "memory_usage": 88,
+    "error_rate": 65,
+    "response_time": 1500,
+    "description": "[Scenario 3: True Positive High CPU Alert] Critical system degradation: CPU usage has hit 98% and API response time is hovering around 1.5 seconds. Error rate is spike-trending."
+  },
+  {
+    "type": "bruteforce_attack",
+    "service": "customer-portal",
+    "environment": "production",
+    "status": "degraded",
+    "failed_login_attempts": 650,
+    "blocked_ips": 12,
+    "response_time": 850,
+    "description": "[Scenario 4: True Positive Brute Force] Active brute force attack detected on the customer portal auth endpoint. Over 650 failed login attempts in the last 2 minutes with only 12 attacker IPs successfully blocked."
+  },
+  {
+    "type": "unauthorized_access",
+    "service": "admin-console",
+    "environment": "production",
+    "status": "degraded",
+    "unauthorized_access_attempts": 110,
+    "failed_login_attempts": 150,
+    "suspicious_ip_count": 8,
+    "description": "[Scenario 5: True Positive Unauthorized Access] Critical unauthorized access event on the admin dashboard console with 110 attempts from unregistered outside IPs."
+  },
+  {
+    "type": "port_scanning",
+    "service": "internal-db-subnet",
+    "environment": "staging",
+    "status": "investigating",
+    "port_scan_attempts": 150,
+    "blocked_ips": 5,
+    "suspicious_ip_count": 12,
+    "description": "[Scenario 6: True Positive Medium Port Scan] Coordinated sweeps detected probing multiple standard and DB ports over the last 10 minutes."
+  },
+  {
+    "type": "bruteforce_attack",
+    "service": "user-auth-service",
+    "environment": "production",
+    "status": "healthy",
+    "failed_login_attempts": 220,
+    "blocked_ips": 45,
+    "response_time": 250,
+    "description": "[Scenario 7: False Positive Suppressed Brute Force] Automated brute-force scan. WAF blocked most IPs, auth service latency is normal, system status remains healthy."
+  }
+]

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Playbook Viewer</h1>
+    <p class="page-subtitle">Step-by-step response procedures for every supported incident type.</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('playbook-modal').style.display='flex'">+ Add Playbook</button>
+</div>
+
+<div class="playbook-layout">
+  <div class="playbook-sidebar">
+    <input class="input" placeholder="Search runbooks..." oninput="filterPlaybooks(this.value)">
+    <div class="playbook-rule-list" id="playbook-list">
+      {% for r in rules %}
+      <a href="/playbooks?selected={{ r.name | urlencode }}" class="playbook-rule-item{% if selected == r.name %} active{% endif %}">
+        <span class="playbook-rule-name">{{ r.name }}</span>
+        {{ severity_badge(r.severity) | safe }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="playbook-detail">
+    {% if rule and rb %}
+    <div class="card playbook-detail-header">
+      <div class="playbook-detail-title-row">
+        <h2 class="playbook-detail-title">{{ rule.name }}</h2>
+        {{ severity_badge(rule.severity) | safe }}
+      </div>
+      <div class="playbook-trigger">
+        <span class="playbook-trigger-label">TRIGGER</span>
+        <code class="playbook-trigger-code mono">{{ rb.trigger }}</code>
+      </div>
+    </div>
+
+    <div class="playbook-sections">
+      <div class="card">
+        <h3 class="playbook-section-title"><span>⚡</span> Immediate Steps</h3>
+        <ol class="playbook-ordered-list">
+          {% for step in rb.immediateSteps %}
+          <li class="playbook-step">{{ step }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3 class="playbook-section-title"><span>💻</span> Diagnostic Commands</h3>
+        <div class="code-block">
+          {% for cmd in rb.commands %}
+          <div class="cmd-line"><span class="cmd-prompt">$ </span><span class="cmd-text">{{ cmd }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="playbook-section-title"><span>🔍</span> Diagnostic Checks</h3>
+        <ul class="playbook-checks">
+          {% for check in rule.checks %}
+          <li class="playbook-check-item"><span class="check-arrow">→</span> {{ check }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 class="playbook-section-title"><span>✅</span> Resolution Checklist</h3>
+        <ul class="playbook-resolution">
+          {% for item in rb.resolutionChecklist %}
+          <li class="playbook-resolution-item"><span class="res-check">☐</span> {{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card playbook-action-card">
+        <h3 class="playbook-section-title"><span>🎯</span> Primary Action</h3>
+        <p class="playbook-action-text">{{ rule.action }}</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-container-low);border:1px dashed var(--outline-variant);border-radius:var(--radius-md);padding:var(--space-2xl)">
+      <span style="font-size:40px">📘</span>
+      <p>Select an incident type from the left to view its runbook.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="playbook-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add Playbook Entry</h2>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('playbook-modal').style.display='none'">✕</button>
+    </div>
+    <form method="POST" action="/playbooks">
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field"><label class="form-label">Rule Name (must match a rule)</label><input class="input" name="rule_name" placeholder="e.g. High CPU Usage" required></div>
+          <div class="form-field"><label class="form-label">Trigger Condition</label><input class="input" name="trigger" placeholder="e.g. cpu_usage > 90" required></div>
+          <div class="form-field form-field-wide"><label class="form-label">Immediate Steps (one per line)</label><textarea class="input" name="immediate_steps" rows="3" placeholder="Restart service"></textarea></div>
+          <div class="form-field form-field-wide"><label class="form-label">Diagnostic Commands (one per line)</label><textarea class="input" name="commands" rows="3" placeholder="top -o %CPU"></textarea></div>
+          <div class="form-field form-field-wide"><label class="form-label">Resolution Checklist (one per line)</label><textarea class="input" name="resolution_checklist" rows="3" placeholder="Identify the process"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('playbook-modal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add Playbook</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function filterPlaybooks(val) {
+  document.querySelectorAll('#playbook-list .playbook-rule-item').forEach(function(item) {
+    var name = item.querySelector('.playbook-rule-name');
+    if (name) item.style.display = name.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

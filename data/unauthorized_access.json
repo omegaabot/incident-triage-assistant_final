@@ -1,8 +1,0 @@
-{
-  "type": "unauthorized_access",
-  "service": "admin-dashboard",
-  "status": "security_warning",
-  "unauthorized_access_attempts": 150,
-  "failed_login_attempts": 300,
-  "suspicious_ip_count": 20
-}

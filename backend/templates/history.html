@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Triage History</h1>
+    <p class="page-subtitle">Browse past triage sessions and results.</p>
+  </div>
+</div>
+
+<div class="history-layout">
+  <div class="history-sidebar">
+    <form method="GET" action="/history">
+      <input class="input" name="search" placeholder="Search by service, severity, type..." value="{{ search }}">
+    </form>
+    <div class="history-list">
+      {% for r in results %}
+      <a href="/history?selected={{ r.id }}{% if search %}&search={{ search }}{% endif %}" class="history-item{% if selected_result and selected_result.id == r.id %} active{% endif %}">
+        <div class="history-item-top">
+          <span class="history-item-id mono">{{ r.alert_data.get('service', 'N/A') }}</span>
+          {{ severity_badge(r.final_severity) | safe }}
+        </div>
+        <span class="history-item-service">{{ r.alert_data.get('type', 'N/A') | replace('_', ' ') }}</span>
+        <div class="history-item-footer">
+          <span class="history-item-time">{{ r.timestamp.strftime('%Y-%m-%d %H:%M') if r.timestamp else '' }}</span>
+          <span class="badge badge-info" style="font-size:10px;padding:2px 6px">{{ r.escalation_level }}</span>
+        </div>
+      </a>
+      {% else %}
+      <div class="empty-state" style="padding:var(--space-lg)"><span>🕐</span><p>No triage history yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    {% if selected_result %}
+    {% set alert = selected_result.alert_data %}
+    <div class="triage-report">
+      <div class="report-header report-header--{{ selected_result.final_severity | lower }}">
+        <div class="report-header-top">
+          <div class="report-title-group">
+            <span class="report-label">TRIAGE REPORT</span>
+            <h2 class="report-alert-id mono">{{ alert.get('service', 'N/A') | upper }}</h2>
+          </div>
+          {{ severity_badge(selected_result.final_severity) | safe }}
+        </div>
+        <div class="report-meta-grid">
+          <div class="report-meta-item"><span class="report-meta-label">Service</span><span class="report-meta-value">{{ alert.get('service', 'N/A') }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Type</span><span class="report-meta-value" style="text-transform:capitalize">{{ alert.get('type', 'N/A') | replace('_', ' ') }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Time</span><span class="report-meta-value mono">{{ selected_result.timestamp.strftime('%H:%M:%S') if selected_result.timestamp else '' }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Escalation</span><span class="report-meta-value report-escalation">{{ selected_result.escalation_level }}</span></div>
+        </div>
+        {% if selected_result.is_false_positive %}
+        <div class="fp-banner"><strong>False Positive</strong> · Confidence: {{ selected_result.fp_confidence }}%</div>
+        {% endif %}
+      </div>
+
+      <div class="report-tabs">
+        <button class="report-tab active" data-tab="h-overview" onclick="switchTab2(this,'h-overview')">Overview</button>
+        <button class="report-tab" data-tab="h-issues" onclick="switchTab2(this,'h-issues')">Issues</button>
+        <button class="report-tab" data-tab="h-engineer" onclick="switchTab2(this,'h-engineer')">On-Call</button>
+      </div>
+
+      <script>
+        function switchTab2(el, id) {
+          var container = el.closest('.triage-report');
+          container.querySelectorAll('.report-tab').forEach(function(t){t.classList.remove('active')});
+          el.classList.add('active');
+          container.querySelectorAll('.htab-content').forEach(function(c){c.style.display='none'});
+          document.getElementById(id).style.display='block';
+        }
+      </script>
+
+      <div class="report-content">
+        <div id="h-overview" class="htab-content">
+          <div class="card report-card">
+            <h3 class="section-title">Incident Summary</h3>
+            <div class="info-grid">
+              <div class="info-row"><span class="info-label">Service</span><span class="info-value">{{ alert.get('service', 'N/A') }}</span></div>
+              <div class="info-row"><span class="info-label">Type</span><span class="info-value">{{ alert.get('type', 'N/A') }}</span></div>
+              <div class="info-row"><span class="info-label">Risk Score</span><span class="info-value">{{ selected_result.risk_score }} / 120</span></div>
+              <div class="info-row"><span class="info-label">Priority</span><span class="info-value">{{ selected_result.priority_score }}</span></div>
+              <div class="info-row"><span class="info-label">Matched Rules</span><span class="info-value">{{ selected_result.matched_rule_names | length }}</span></div>
+              <div class="info-row"><span class="info-label">Status</span><span class="info-value">{{ alert.get('status', 'N/A') }}</span></div>
+            </div>
+          </div>
+          <div class="card report-card">
+            <h3 class="section-title">Alert Metrics</h3>
+            <div class="metrics-grid">
+              {% for key, val in alert.items() %}
+              {% if key not in ['alert_id','id','timestamp','environment','datacenter','source_system','description','type','service','status','label'] %}
+              <div class="metric-chip"><span class="metric-key">{{ key | replace('_', ' ') }}</span><span class="metric-val mono">{{ val }}</span></div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div id="h-issues" class="htab-content" style="display:none">
+          {% if selected_result.matched_rule_names %}
+          <div class="card report-card">
+            <h3 class="section-title">Matched Rules</h3>
+            <ul class="checks-list">
+              {% for name in selected_result.matched_rule_names %}
+              <li class="check-item"><span class="check-bullet">→</span> {{ name }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% else %}
+          <div class="empty-state"><span>✅</span><p>No rules matched.</p></div>
+          {% endif %}
+        </div>
+
+        <div id="h-engineer" class="htab-content" style="display:none">
+          <div class="card report-card engineer-card">
+            <h3 class="section-title">On-Call Engineer</h3>
+            <div class="engineer-avatar"><span>{{ selected_result.engineer_name[0] if selected_result.engineer_name else '?' }}</span></div>
+            <div class="info-grid">
+              <div class="info-row"><span class="info-label">Name</span><span class="info-value">{{ selected_result.engineer_name or 'N/A' }}</span></div>
+              <div class="info-row"><span class="info-label">Severity</span><span class="info-value">{{ severity_badge(selected_result.final_severity) | safe }}</span></div>
+              <div class="info-row"><span class="info-label">Escalation</span><span class="info-value">{{ selected_result.escalation_level }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="history-select-hint">
+      <span>📋</span>
+      <p>Select a triage session from the list to view details.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

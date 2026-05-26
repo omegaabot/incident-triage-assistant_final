@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Triage Assistant</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    {% set nav_items = [
+      ('/', 'dashboard', 'Dashboard'),
+      ('/triage', 'triage', 'Triage Alert'),
+      ('/playbooks', 'playbook', 'Playbook'),
+      ('/rules', 'rules', 'Rules Engine'),
+      ('/history', 'history', 'History'),
+    ] %}
+    {% set current_path = request.url.path %}
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="sidebar-logo-text">
+          <span class="sidebar-logo-name">TriageAI</span>
+          <span class="sidebar-logo-sub">Sentinel Interface</span>
+        </div>
+        <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">◀</button>
+      </div>
+      <div class="sidebar-status">
+        <span class="status-dot status-dot--live"></span>
+        <span class="status-text">System Active</span>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="sidebar-nav-label">NAVIGATION</p>
+        {% for href, id, label in nav_items %}
+        <a href="{{ href }}" class="sidebar-nav-item{% if current_path == href %} active{% endif %}">
+          <span class="sidebar-nav-icon">
+            {% if id == 'dashboard' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            {% elif id == 'triage' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            {% elif id == 'playbook' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg>
+            {% elif id == 'rules' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {% elif id == 'history' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 11 11 11"/></svg>
+            {% endif %}
+          </span>
+          <span class="sidebar-nav-label-text">{{ label }}</span>
+        </a>
+        {% endfor %}
+      </nav>
+    </aside>
+    <main class="app-main">
+      <div class="page">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  <script src="/static/script.js"></script>
+</body>
+</html>

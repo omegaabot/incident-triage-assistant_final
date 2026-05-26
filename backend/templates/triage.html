@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Incident Triage</h1>
+  <p class="page-subtitle">Paste an alert JSON payload to classify severity, match rules, and generate a response checklist.</p>
+</div>
+
+<div class="triage-layout">
+  <div>
+    <div class="card triage-editor">
+      <div class="editor-header">
+        <div class="editor-header-left">
+          <span class="editor-lang-badge mono">JSON</span>
+          <h2 class="section-title" style="margin-bottom:0">Alert Payload</h2>
+        </div>
+      </div>
+      <form method="POST" action="/triage">
+        <textarea id="alert-json-input" name="alert_json" class="input triage-textarea" spellcheck="false">{{ alert_json }}</textarea>
+        {% if error %}
+        <div class="triage-error">{{ error }}</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary triage-analyze-btn" style="margin-top:var(--space-md)">Run Triage Analysis</button>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    {% if result %}
+    <div class="triage-report">
+      <div class="report-header report-header--{{ result.final_severity | lower }}">
+        <div class="report-header-top">
+          <div class="report-title-group">
+            <span class="report-label">TRIAGE REPORT</span>
+            <h2 class="report-alert-id mono">{{ result.alert.get('service', 'N/A') | upper }}</h2>
+          </div>
+          {{ severity_badge(result.final_severity) | safe }}
+        </div>
+        <div class="report-meta-grid">
+          <div class="report-meta-item"><span class="report-meta-label">Service</span><span class="report-meta-value">{{ result.alert.get('service', 'N/A') }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Type</span><span class="report-meta-value" style="text-transform:capitalize">{{ result.alert.get('type', 'N/A') | replace('_', ' ') }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Status</span><span class="report-meta-value">{{ result.alert.get('status', 'N/A') }}</span></div>
+          <div class="report-meta-item"><span class="report-meta-label">Escalation</span><span class="report-meta-value report-escalation">{{ result.escalation_level }}</span></div>
+        </div>
+        {% if result.fp_result.is_false_alert %}
+        <div class="fp-banner">
+          <strong>Possible False Positive</strong> · Confidence: {{ result.fp_result.confidence }}%
+          {% if result.fp_result.reasons %}<span class="fp-reasons"> · {{ result.fp_result.reasons[0] }}</span>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="report-tabs">
+        <button class="report-tab active" data-tab="tab-overview" onclick="switchTab(this,'tab-overview')">Overview</button>
+        <button class="report-tab" data-tab="tab-issues" onclick="switchTab(this,'tab-issues')">Issues ({{ result.matched_rules | length }})</button>
+        <button class="report-tab" data-tab="tab-checklist" onclick="switchTab(this,'tab-checklist')">Checklist</button>
+        <button class="report-tab" data-tab="tab-engineer" onclick="switchTab(this,'tab-engineer')">On-Call</button>
+      </div>
+
+      <script>
+        function switchTab(el, id) {
+          document.querySelectorAll('.report-tab').forEach(function(t){t.classList.remove('active')});
+          el.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(function(c){c.style.display='none'});
+          document.getElementById(id).style.display='block';
+        }
+      </script>
+
+      <div class="report-content">
+        <div id="tab-overview" class="tab-content" style="display:block">
+          <div class="card report-card">
+            <h3 class="section-title">Incident Summary</h3>
+            <div class="info-grid">
+              <div class="info-row"><span class="info-label">Service</span><span class="info-value">{{ result.alert.get('service', 'N/A') }}</span></div>
+              <div class="info-row"><span class="info-label">Type</span><span class="info-value">{{ result.alert.get('type', 'N/A') }}</span></div>
+              <div class="info-row"><span class="info-label">Risk Score</span><span class="info-value">{{ result.risk_score }} / 120</span></div>
+              <div class="info-row"><span class="info-label">Priority Score</span><span class="info-value">{{ result.priority_score }}</span></div>
+              <div class="info-row"><span class="info-label">Matched Rules</span><span class="info-value">{{ result.matched_rules | length }}</span></div>
+              <div class="info-row"><span class="info-label">Status</span><span class="info-value">{{ result.alert.get('status', 'N/A') }}</span></div>
+            </div>
+          </div>
+
+          <div class="card report-card">
+            <h3 class="section-title">Alert Metrics</h3>
+            <div class="metrics-grid">
+              {% for key, val in result.alert.items() %}
+              {% if key not in ['alert_id','id','timestamp','environment','datacenter','source_system','description','type','service','status','label'] %}
+              <div class="metric-chip"><span class="metric-key">{{ key | replace('_', ' ') }}</span><span class="metric-val mono">{{ val }}</span></div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-issues" class="tab-content" style="display:none">
+          {% if result.matched_rules %}
+          {% for rule in result.matched_rules %}
+          <div class="card report-card issue-card">
+            <div class="issue-header">
+              <h3 class="issue-name">{{ rule.name }}</h3>
+              {{ severity_badge(rule.severity) | safe }}
+            </div>
+            <p class="issue-message">{{ rule.message }}</p>
+            <div class="issue-action">{{ rule.action }}</div>
+            {% if rule.checks %}
+            <hr class="divider">
+            <h4 class="section-title">Diagnostic Checks</h4>
+            <ul class="checks-list">
+              {% for check in rule.checks %}
+              <li class="check-item"><span class="check-bullet">→</span> {{ check }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state"><span>✅</span><p>No rules matched — system appears healthy or alert is a false positive.</p></div>
+          {% endif %}
+        </div>
+
+        <div id="tab-checklist" class="tab-content" style="display:none">
+          {% if result.matched_rules %}
+          {% for rule in result.matched_rules %}
+          <div class="card report-card">
+            <div class="checklist-rule-header">
+              <h3 class="section-title" style="margin-bottom:0">{{ rule.name }}</h3>
+              {{ severity_badge(rule.severity) | safe }}
+            </div>
+            <div class="checklist-items">
+              {% for item in rule.checklist %}
+              <div class="checklist-item">
+                <button class="checklist-checkbox" onclick="this.classList.toggle('checked');this.closest('.checklist-item').classList.toggle('done')"></button>
+                <span class="checklist-label">{{ item }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state"><span>✅</span><p>No checklist items — no rules matched.</p></div>
+          {% endif %}
+        </div>
+
+        <div id="tab-engineer" class="tab-content" style="display:none">
+          <div class="card report-card engineer-card">
+            <h3 class="section-title">On-Call Engineer</h3>
+            <div class="engineer-avatar"><span>{{ result.engineer.name[0] if result.engineer.name else '?' }}</span></div>
+            <div class="info-grid">
+              <div class="info-row"><span class="info-label">Name</span><span class="info-value">{{ result.engineer.name }}</span></div>
+              <div class="info-row"><span class="info-label">Team</span><span class="info-value">{{ result.engineer.team }}</span></div>
+              <div class="info-row"><span class="info-label">Email</span><span class="info-value mono">{{ result.engineer.email }}</span></div>
+              <div class="info-row"><span class="info-label">Phone</span><span class="info-value mono">{{ result.engineer.phone }}</span></div>
+              <div class="info-row"><span class="info-label">Escalation</span><span class="info-value">{{ result.escalation_level }}</span></div>
+            </div>
+            {% if not result.fp_result.is_false_alert %}
+            <div class="notification-banner">Notification would be sent for a real incident ({{ result.escalation_level }})</div>
+            {% else %}
+            <div class="notification-banner notification-banner--skipped">Notification skipped — False Positive detected</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-container-low);border:1px dashed var(--outline-variant);border-radius:var(--radius-md);padding:var(--space-2xl);animation:fade-in 0.3s ease">
+      <div style="font-size:48px;margin-bottom:var(--space-md);opacity:0.6">🔍</div>
+      <h3 style="font-size:18px;color:var(--on-surface);margin-bottom:8px">Awaiting Analysis</h3>
+      <p style="color:var(--on-surface-variant);font-size:14px;max-width:360px;text-align:center;line-height:1.6;margin-bottom:var(--space-xl)">Paste an alert JSON in the editor and click "Run Triage Analysis".</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

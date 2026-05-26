@@ -1,0 +1,57 @@
+=== Incident Triage Assistant - Progress Log ===
+
+## Phase 1: Remove Sample Data & React Frontend [Done]
+- Deleted: data/*.json, SCENARIOS.md
+- Deleted: src/pages/, src/components/, src/triageEngine.js, src/App.jsx, src/main.jsx, src/index.css, src/App.css, src/assets/, public/, dist/
+- Deleted: package.json, vite.config.js, index.html, eslint.config.js, package-lock.json
+- Deleted: output/reports.txt, src/__pycache__/
+
+## Phase 2: Core Python Library [Done]
+- Created: backend/core/__init__.py, rule_engine.py, escalation.py, triage.py
+- Refactored CLI scripts into pure function-based library
+
+## Phase 3: Database Layer [Done]
+- Created: backend/database.py (SQLAlchemy engine, SessionLocal, get_db, init_db)
+- Created: backend/models.py (ORM: Rule, Playbook, Engineer, TriageResult)
+- Created: backend/schemas.py (Pydantic: AlertInput, RuleCreate, PlaybookCreate)
+- Created: backend/seed.py (seeds 10 rules, 10 playbooks, 3 engineers)
+
+## Phase 4: FastAPI Backend [Done]
+- Created: backend/main.py (FastAPI app with all routes)
+- Routes: GET / (dashboard), GET/POST /triage, GET/POST /rules, GET/POST /playbooks, GET /history
+
+## Phase 5: Static Assets [Done]
+- Created: backend/static/style.css (~550 lines, full design system)
+- Created: backend/static/script.js (sidebar, tabs, checklists, history)
+
+## Phase 6: Jinja2 Templates [Done]
+- Created: backend/templates/base.html, dashboard.html, triage.html
+- Created: backend/templates/rules.html, playbooks.html, history.html
+- Created: backend/requirements.txt
+
+## Phase 7: PostgreSQL Migration [Done]
+- Switched default DATABASE_URL from SQLite to PostgreSQL
+- Database auto-creates on first connection if missing
+- Added psycopg2-binary to requirements.txt
+- Connection: postgresql://postgres:Post%401234@localhost:5432/incident_triage
+- Set via DATABASE_URL env var or defaults to above
+
+## Phase 8: Consolidated Tests & Bugfixes [Done]
+- Discovered and patched FastAPI/Starlette TemplateResponse signature incompatibility bug for Starlette 1.0+
+- Created consolidated direct copy-pasteable JSON testing suites (all_test_scenarios.json)
+- Purged legacy `src/` directory and redundant temporary JSON files
+
+## Tech Stack Used
+- Backend: FastAPI + SQLAlchemy + Jinja2
+- Database: PostgreSQL (with local SQLite fallback)
+- Frontend: Server-side Jinja2 templates
+- Styling: Vanilla CSS (dark technical design system)
+- Scripting: Vanilla JS (tabs, checklists, search)
+
+## How to Run
+1. .\venv\Scripts\activate
+2. pip install -r backend/requirements.txt
+3. $env:DATABASE_URL="sqlite:///./incident_triage.db"; .\venv\Scripts\python.exe -m backend.seed
+4. $env:DATABASE_URL="sqlite:///./incident_triage.db"; .\venv\Scripts\python.exe -m uvicorn backend.main:app --port 8888
+5. Open http://localhost:8888
+
