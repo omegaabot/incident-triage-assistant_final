@@ -1,0 +1,421 @@
+.triage-report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Report Header */
+.report-header {
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.report-header--critical {
+  border-color: rgba(255, 71, 87, 0.4);
+  background: linear-gradient(135deg, var(--surface-container-low), rgba(255, 71, 87, 0.05));
+  box-shadow: var(--shadow-glow-red);
+}
+
+.report-header--high {
+  border-color: rgba(255, 107, 53, 0.4);
+  background: linear-gradient(135deg, var(--surface-container-low), rgba(255, 107, 53, 0.05));
+}
+
+.report-header--medium {
+  border-color: rgba(255, 165, 2, 0.3);
+  background: linear-gradient(135deg, var(--surface-container-low), rgba(255, 165, 2, 0.04));
+}
+
+.report-header--low {
+  border-color: rgba(46, 213, 115, 0.3);
+  background: linear-gradient(135deg, var(--surface-container-low), rgba(46, 213, 115, 0.04));
+}
+
+.report-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.report-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+}
+
+.report-alert-id {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.report-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 700px) {
+  .report-meta-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.report-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.report-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.report-meta-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.report-escalation {
+  font-family: var(--font-mono);
+  font-size: 13px !important;
+}
+
+/* FP banner */
+.fp-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-md);
+  background: var(--low-bg);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--low);
+}
+
+.fp-reasons {
+  color: var(--on-surface-variant);
+}
+
+/* Tabs */
+.report-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.report-tab {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.report-tab:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.report-tab.active {
+  background: var(--cyber-blue);
+  color: #fff;
+}
+
+/* Report content area */
+.report-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.report-card {
+  margin-bottom: 0;
+}
+
+/* Info rows */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.info-row:last-child { border-bottom: none; }
+
+.info-label {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.info-value {
+  font-size: 13px;
+  color: var(--on-surface);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Description */
+.report-description {
+  font-size: 14px;
+  color: var(--on-surface-variant);
+  line-height: 1.7;
+}
+
+/* Metrics grid */
+.metrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metric-chip {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  min-width: 100px;
+}
+
+.metric-key {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin-bottom: 2px;
+}
+
+.metric-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+/* FP card */
+.fp-card {
+  border-color: var(--outline-variant);
+}
+
+.fp-card--positive {
+  border-color: rgba(46, 213, 115, 0.3);
+}
+
+.fp-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.fp-verdict {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fp-reason-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-reason-item {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  padding: 6px 10px;
+  background: var(--surface-container-high);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--low);
+}
+
+/* Issues */
+.issue-card { border-left: 3px solid var(--outline); }
+
+.issue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.issue-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.issue-message {
+  font-size: 14px;
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-sm);
+  font-family: var(--font-mono);
+  background: var(--surface-container-high);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.issue-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--cyber-blue);
+  font-weight: 600;
+}
+
+.checks-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+
+.check-bullet {
+  color: var(--cyber-blue);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Checklist */
+.checklist-rule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--outline-variant);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  color: #fff;
+}
+
+.checklist-checkbox:hover {
+  border-color: var(--cyber-blue);
+  background: var(--cyber-blue-glow);
+}
+
+.checklist-checkbox.checked {
+  background: var(--low);
+  border-color: var(--low);
+}
+
+.checklist-label {
+  font-size: 14px;
+  color: var(--on-surface);
+  flex: 1;
+}
+
+/* Engineer */
+.engineer-card {
+  text-align: center;
+}
+
+.engineer-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--cyber-blue), #1d4ed8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 auto var(--space-lg);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.notification-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-md);
+  background: var(--info-bg);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--info);
+}
+
+.notification-banner--skipped {
+  background: var(--low-bg);
+  border-color: rgba(46, 213, 115, 0.3);
+  color: var(--low);
+}
+
+/* Empty states */
+.report-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: var(--space-2xl);
+  color: var(--on-surface-variant);
+  font-size: 14px;
+}
+
+.report-empty span { font-size: 32px; }
