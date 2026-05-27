@@ -23,6 +23,11 @@ def get_db():
 
 def init_db():
     import backend.models
+
+    if "sqlite" in DATABASE_URL:
+        Base.metadata.create_all(bind=engine)
+        return
+
     from sqlalchemy import text
 
     try:
@@ -35,3 +40,10 @@ def init_db():
             conn.execute(text(f"CREATE DATABASE {db_name}"))
         tmp_engine.dispose()
         Base.metadata.create_all(bind=engine)
+
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE rules ADD COLUMN priority INTEGER DEFAULT 3"))
+            conn.commit()
+        except Exception:
+            conn.rollback()

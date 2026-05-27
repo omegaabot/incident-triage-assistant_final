@@ -78,12 +78,15 @@
       {% for sev in severity_order %}
       {% set count = severity_counts.get(sev, 0) %}
       {% set pct = (count / (total or 1) * 100) | round %}
+      {% set color = 'var(--critical)' if sev == 'CRITICAL' else 'var(--high)' if sev == 'HIGH' else 'var(--medium)' if sev == 'MEDIUM' else 'var(--low)' %}
       <div class="severity-dist-row">
-        {{ severity_badge(sev) | safe }}
-        <div class="progress-bar-track" style="flex:1">
-          <div class="progress-bar-fill" style="width:{{ pct }}%;background:{% if sev == 'CRITICAL' %}var(--critical){% elif sev == 'HIGH' %}var(--high){% elif sev == 'MEDIUM' %}var(--medium){% else %}var(--low){% endif %}"></div>
+        <span class="severity-dot" style="background:{{ color }}"></span>
+        <span class="severity-dist-label">{{ sev }}</span>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width:{{ pct }}%;background:{{ color }}"></div>
         </div>
-        <span class="severity-dist-count mono">{{ count }}<span class="severity-dist-pct"> ({{ pct }}%)</span></span>
+        <span class="severity-dist-count">{{ count }}</span>
+        <span class="severity-dist-pct">{{ pct }}%</span>
       </div>
       {% endfor %}
     </div>

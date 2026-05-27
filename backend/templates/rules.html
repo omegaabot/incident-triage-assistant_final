@@ -5,7 +5,11 @@
     <h1 class="page-title">Rules Engine</h1>
     <p class="page-subtitle">{{ total }} active rules across {{ types | length }} incident categories</p>
   </div>
-  <button class="btn btn-primary" onclick="document.getElementById('rule-modal').style.display='flex'">+ Add Rule</button>
+  <div class="page-header-actions">
+    <button class="btn btn-ghost" onclick="document.getElementById('import-input').click()">Import JSON</button>
+    <input id="import-input" type="file" accept=".json" style="display:none" onchange="handleImport(event)">
+    <button class="btn btn-primary" onclick="document.getElementById('rule-modal').style.display='flex'">+ Add Rule</button>
+  </div>
 </div>
 
 <div class="stats-bar">
@@ -27,10 +31,15 @@
 
 <div class="rules-grid" id="rules-grid">
   {% for rule in rules %}
-  <div class="card rule-card" data-name="{{ rule.name | lower }}" data-type="{{ rule.type | lower }}">
+  <div class="card rule-card" data-name="{{ rule.name | lower }}" data-type="{{ rule.type | lower }}" data-priority="{{ rule.priority or 3 }}">
     <button class="rule-card-header" onclick="toggleRule(this)">
       <div class="rule-card-left">
-        <h3 class="rule-name">{{ rule.name }}</h3>
+        <div class="rule-name-row">
+          <h3 class="rule-name">{{ rule.name }}</h3>
+          {% if rule.priority and rule.priority <= 2 %}
+          <span class="priority-badge priority-{{ rule.priority }}">P{{ rule.priority }}</span>
+          {% endif %}
+        </div>
         <span class="rule-type mono">{{ rule.type }}</span>
       </div>
       <div class="rule-card-right">
@@ -40,6 +49,7 @@
     </button>
     <div class="rule-condition"><span class="rule-condition-label">CONDITION</span><code class="rule-condition-code mono">{{ rule.condition }}</code></div>
     <p class="rule-action">{{ rule.action }}</p>
+    <button class="btn btn-danger btn-sm" onclick="showDeleteModal({{ rule.id }}, '{{ rule.name | escape }}')">Delete</button>
     <div class="rule-expanded" style="display:none">
       <hr class="divider">
       <div class="rule-detail-grid">
@@ -75,6 +85,7 @@
 <div class="empty-state"><span>🔍</span><p>No rules match your search criteria.</p></div>
 {% endif %}
 
+<!-- Add Rule Modal -->
 <div id="rule-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal">
     <div class="modal-header">
@@ -93,6 +104,15 @@
               <option value="HIGH" selected>HIGH</option>
             </select>
           </div>
+          <div class="form-field"><label class="form-label">Priority</label>
+            <select class="input" name="priority">
+              <option value="1">P1 - Highest</option>
+              <option value="2">P2 - High</option>
+              <option value="3" selected>P3 - Medium</option>
+              <option value="4">P4 - Low</option>
+              <option value="5">P5 - Lowest</option>
+            </select>
+          </div>
           <div class="form-field"><label class="form-label">Condition</label><input class="input" name="condition" placeholder="e.g. disk_usage > 90" required></div>
           <div class="form-field form-field-wide"><label class="form-label">Message</label><input class="input" name="message" placeholder="e.g. Disk usage is high" required></div>
           <div class="form-field form-field-wide"><label class="form-label">Action</label><input class="input" name="action" placeholder="e.g. Free up disk space" required></div>
@@ -109,7 +129,44 @@
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal-overlay delete-modal-overlay" style="display:none">
+  <div class="modal delete-modal">
+    <div class="delete-modal-icon">🗑️</div>
+    <h2 class="delete-modal-title">Delete Rule?</h2>
+    <p class="delete-modal-desc">Are you sure you want to delete <strong id="delete-rule-name"></strong>? This action cannot be undone.</p>
+    <div class="delete-modal-actions">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button id="delete-confirm-btn" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+    <div id="delete-loading" class="delete-loading" style="display:none">
+      <div class="spinner"></div>
+      <span>Deleting...</span>
+    </div>
+  </div>
+</div>
+
+<!-- Import Preview Modal -->
+<div id="import-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal import-modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Import Rules</h2>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-modal').style.display='none'">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="import-preview"></div>
+      <div id="import-error" class="import-error" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('import-modal').style.display='none'">Cancel</button>
+      <button id="import-confirm-btn" class="btn btn-primary" style="display:none" onclick="confirmImport()">Import Rules</button>
+    </div>
+  </div>
+</div>
+
 <script>
+var deleteRuleId = null;
+
 function toggleRule(btn) {
   var card = btn.closest('.rule-card');
   card.classList.toggle('expanded');
@@ -118,11 +175,115 @@ function toggleRule(btn) {
   var expanded = card.querySelector('.rule-expanded');
   if (expanded) expanded.style.display = expanded.style.display === 'none' ? 'block' : 'none';
 }
+
 function filterRules(val) {
   document.querySelectorAll('.rule-card').forEach(function(c) {
     var name = c.getAttribute('data-name') || '';
     c.style.display = name.includes(val.toLowerCase()) ? '' : 'none';
   });
+}
+
+function showDeleteModal(ruleId, ruleName) {
+  deleteRuleId = ruleId;
+  document.getElementById('delete-rule-name').textContent = ruleName;
+  document.getElementById('delete-modal').style.display = 'flex';
+  document.getElementById('delete-loading').style.display = 'none';
+  document.getElementById('delete-confirm-btn').style.display = 'inline-flex';
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  deleteRuleId = null;
+}
+
+function confirmDelete() {
+  if (!deleteRuleId) return;
+  document.getElementById('delete-confirm-btn').style.display = 'none';
+  document.getElementById('delete-loading').style.display = 'flex';
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/rules/' + deleteRuleId + '/delete';
+  document.body.appendChild(form);
+  form.submit();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDeleteModal();
+});
+
+var importedData = null;
+
+function handleImport(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) data = [data];
+      importedData = data;
+      var preview = document.getElementById('import-preview');
+      var error = document.getElementById('import-error');
+      var missing = 0;
+      var html = '<div class="import-summary">Found <strong>' + data.length + '</strong> rule(s)</div><div class="import-table-wrap"><table class="import-table"><thead><tr><th>Name</th><th>Type</th><th>Severity</th><th>Priority</th><th>Status</th></tr></thead><tbody>';
+      data.forEach(function(item, i) {
+        var valid = item.name && item.type && item.condition && item.severity;
+        if (!valid) missing++;
+        html += '<tr class="' + (valid ? 'import-valid' : 'import-invalid') + '">';
+        html += '<td>' + (item.name || '<em>missing</em>') + '</td>';
+        html += '<td>' + (item.type || '<em>missing</em>') + '</td>';
+        html += '<td>' + (item.severity || '<em>missing</em>') + '</td>';
+        html += '<td>' + (item.priority || '3') + '</td>';
+        html += '<td>' + (valid ? '<span class="import-ok">✓ Valid</span>' : '<span class="import-bad">✗ Missing fields</span>') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      preview.innerHTML = html;
+      if (missing > 0) {
+        error.innerHTML = missing + ' rule(s) have missing required fields and will be skipped.';
+        error.style.display = 'block';
+      } else {
+        error.style.display = 'none';
+      }
+      document.getElementById('import-confirm-btn').style.display = data.length > 0 ? 'inline-flex' : 'none';
+      document.getElementById('import-modal').style.display = 'flex';
+    } catch(err) {
+      document.getElementById('import-preview').innerHTML = '';
+      document.getElementById('import-error').innerHTML = 'Invalid JSON: ' + err.message;
+      document.getElementById('import-error').style.display = 'block';
+      document.getElementById('import-confirm-btn').style.display = 'none';
+      document.getElementById('import-modal').style.display = 'flex';
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function confirmImport() {
+  if (!importedData) return;
+  var btn = document.getElementById('import-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Importing...';
+  var formData = new FormData();
+  var blob = new Blob([JSON.stringify(importedData)], {type: 'application/json'});
+  formData.append('file', blob, 'rules.json');
+  fetch('/rules/import', {method: 'POST', body: formData})
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+      var msg = 'Imported ' + result.imported + ' rule(s) successfully.';
+      if (result.errors && result.errors.length > 0) {
+        msg += ' Errors: ' + result.errors.join(', ');
+      }
+      document.getElementById('import-preview').innerHTML = '<div class="import-success">' + msg + '</div>';
+      document.getElementById('import-confirm-btn').style.display = 'none';
+      setTimeout(function() { window.location.reload(); }, 1500);
+    })
+    .catch(function(err) {
+      document.getElementById('import-error').innerHTML = 'Import failed: ' + err.message;
+      document.getElementById('import-error').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Import Rules';
+    });
 }
 </script>
 {% endblock %}

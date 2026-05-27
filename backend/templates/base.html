@@ -12,8 +12,8 @@
     {% set nav_items = [
       ('/', 'dashboard', 'Dashboard'),
       ('/triage', 'triage', 'Triage Alert'),
-      ('/playbooks', 'playbook', 'Playbook'),
       ('/rules', 'rules', 'Rules Engine'),
+      ('/playbooks', 'playbook', 'Playbook'),
       ('/history', 'history', 'History'),
     ] %}
     {% set current_path = request.url.path %}
@@ -28,7 +28,6 @@
           <span class="sidebar-logo-name">TriageAI</span>
           <span class="sidebar-logo-sub">Sentinel Interface</span>
         </div>
-        <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">◀</button>
       </div>
       <div class="sidebar-status">
         <span class="status-dot status-dot--live"></span>

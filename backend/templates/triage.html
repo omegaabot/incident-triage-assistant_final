@@ -13,6 +13,20 @@
           <span class="editor-lang-badge mono">JSON</span>
           <h2 class="section-title" style="margin-bottom:0">Alert Payload</h2>
         </div>
+        <div class="editor-actions">
+          <input id="import-alert-input" type="file" accept=".json" style="display:none" onchange="importAlertFile(event)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-alert-input').click()">Import</button>
+          <select id="scenario-select" class="input scenario-select" onchange="loadScenario(this.value)">
+            <option value="">Load Scenario...</option>
+            <option value="ddos">DDoS Attack</option>
+            <option value="cpu_mem">High CPU & Memory</option>
+            <option value="cpu">High CPU Alert</option>
+            <option value="bruteforce">Brute Force Attack</option>
+            <option value="unauthorized">Unauthorized Access</option>
+            <option value="portscan">Port Scanning</option>
+            <option value="fp_bruteforce">False Positive Brute Force</option>
+          </select>
+        </div>
       </div>
       <form method="POST" action="/triage">
         <textarea id="alert-json-input" name="alert_json" class="input triage-textarea" spellcheck="false">{{ alert_json }}</textarea>
@@ -128,7 +142,7 @@
             <div class="checklist-items">
               {% for item in rule.checklist %}
               <div class="checklist-item">
-                <button class="checklist-checkbox" onclick="this.classList.toggle('checked');this.closest('.checklist-item').classList.toggle('done')"></button>
+                <button class="checklist-checkbox"></button>
                 <span class="checklist-label">{{ item }}</span>
               </div>
               {% endfor %}
@@ -169,4 +183,41 @@
     {% endif %}
   </div>
 </div>
+
+<script>
+var SCENARIOS = {
+  ddos: {"type":"ddos_attack","service":"checkout-gateway","environment":"production","status":"under_attack","requests_per_second":12500,"network_latency":1500,"packet_loss":35,"description":"Massive incoming traffic spike from overseas botnet causing core network latency and severe packet drops."},
+  cpu_mem: {"type":"system_monitoring","service":"payment-api","environment":"production","status":"degraded","cpu_usage":94,"memory_usage":85,"error_rate":58,"response_time":1400,"description":"CPU spikes above 90% and memory above 80% leading to increased API error rates."},
+  cpu: {"type":"system_monitoring","service":"payment-api","environment":"production","status":"degraded","cpu_usage":98,"memory_usage":88,"error_rate":65,"response_time":1500,"description":"Critical CPU usage at 98% with API response time around 1.5 seconds."},
+  bruteforce: {"type":"bruteforce_attack","service":"customer-portal","environment":"production","status":"degraded","failed_login_attempts":650,"blocked_ips":12,"response_time":850,"description":"Active brute force attack on customer portal auth endpoint."},
+  unauthorized: {"type":"unauthorized_access","service":"admin-console","environment":"production","status":"degraded","unauthorized_access_attempts":110,"failed_login_attempts":150,"suspicious_ip_count":8,"description":"Unauthorized access event on admin dashboard console."},
+  portscan: {"type":"port_scanning","service":"internal-db-subnet","environment":"staging","status":"investigating","port_scan_attempts":150,"blocked_ips":5,"suspicious_ip_count":12,"description":"Coordinated sweeps probing multiple standard and DB ports."},
+  fp_bruteforce: {"type":"bruteforce_attack","service":"user-auth-service","environment":"production","status":"healthy","failed_login_attempts":220,"blocked_ips":45,"response_time":250,"description":"Automated brute-force scan mitigated by WAF. System status remains healthy."}
+};
+
+function loadScenario(key) {
+  if (!key) return;
+  var data = SCENARIOS[key];
+  if (data) {
+    document.getElementById('alert-json-input').value = JSON.stringify(data, null, 2);
+  }
+  document.getElementById('scenario-select').value = '';
+}
+
+function importAlertFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      document.getElementById('alert-json-input').value = JSON.stringify(data, null, 2);
+    } catch(err) {
+      alert('Invalid JSON file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+</script>
 {% endblock %}

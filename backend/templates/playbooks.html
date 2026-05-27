@@ -13,10 +13,13 @@
     <input class="input" placeholder="Search runbooks..." oninput="filterPlaybooks(this.value)">
     <div class="playbook-rule-list" id="playbook-list">
       {% for r in rules %}
-      <a href="/playbooks?selected={{ r.name | urlencode }}" class="playbook-rule-item{% if selected == r.name %} active{% endif %}">
-        <span class="playbook-rule-name">{{ r.name }}</span>
-        {{ severity_badge(r.severity) | safe }}
-      </a>
+      <div class="playbook-rule-item-wrapper{% if selected == r.name %} active{% endif %}">
+        <a href="/playbooks?selected={{ r.name | urlencode }}" class="playbook-rule-item">
+          <span class="playbook-rule-name">{{ r.name }}</span>
+          {{ severity_badge(r.severity) | safe }}
+        </a>
+        <button class="btn-icon btn-delete" title="Delete playbook" onclick="showPlaybookDeleteModal('{{ r.name | escape }}')">✕</button>
+      </div>
       {% endfor %}
     </div>
   </div>
@@ -109,12 +112,59 @@
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal-overlay delete-modal-overlay" style="display:none">
+  <div class="modal delete-modal">
+    <div class="delete-modal-icon">🗑️</div>
+    <h2 class="delete-modal-title">Delete Playbook?</h2>
+    <p class="delete-modal-desc">Are you sure you want to delete the playbook for <strong id="delete-rule-name"></strong>? This action cannot be undone.</p>
+    <div class="delete-modal-actions">
+      <button class="btn btn-ghost" onclick="closePlaybookDeleteModal()">Cancel</button>
+      <button id="delete-confirm-btn" class="btn btn-danger" onclick="confirmPlaybookDelete()">Delete</button>
+    </div>
+    <div id="delete-loading" class="delete-loading" style="display:none">
+      <div class="spinner"></div>
+      <span>Deleting...</span>
+    </div>
+  </div>
+</div>
+
 <script>
+var deletePlaybookName = null;
+
 function filterPlaybooks(val) {
-  document.querySelectorAll('#playbook-list .playbook-rule-item').forEach(function(item) {
+  document.querySelectorAll('#playbook-list .playbook-rule-item-wrapper').forEach(function(item) {
     var name = item.querySelector('.playbook-rule-name');
     if (name) item.style.display = name.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
   });
 }
+
+function showPlaybookDeleteModal(ruleName) {
+  deletePlaybookName = ruleName;
+  document.getElementById('delete-rule-name').textContent = ruleName;
+  document.getElementById('delete-modal').style.display = 'flex';
+  document.getElementById('delete-loading').style.display = 'none';
+  document.getElementById('delete-confirm-btn').style.display = 'inline-flex';
+}
+
+function closePlaybookDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  deletePlaybookName = null;
+}
+
+function confirmPlaybookDelete() {
+  if (!deletePlaybookName) return;
+  document.getElementById('delete-confirm-btn').style.display = 'none';
+  document.getElementById('delete-loading').style.display = 'flex';
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/playbooks/' + encodeURIComponent(deletePlaybookName) + '/delete';
+  document.body.appendChild(form);
+  form.submit();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePlaybookDeleteModal();
+});
 </script>
 {% endblock %}

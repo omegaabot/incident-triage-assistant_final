@@ -15,7 +15,7 @@ def map_severity(severity):
 def calculate_risk_score(alert):
     score = 0
     
-    # Risk rules weight mapping based on TECHNICAL.md:
+    # Network & infrastructure risk factors
     if alert.get("requests_per_second", 0) > 10000:
         score += 30
     if alert.get("requests_per_second", 0) > 5000:
@@ -28,7 +28,27 @@ def calculate_risk_score(alert):
         score += 25
     if alert.get("environment") == "production":
         score += 10
-        
+
+    # System monitoring risk factors
+    if alert.get("cpu_usage", 0) > 90:
+        score += 20
+    if alert.get("memory_usage", 0) > 80:
+        score += 15
+    if alert.get("error_rate", 0) > 50:
+        score += 20
+    if alert.get("response_time", 0) > 1000:
+        score += 15
+
+    # Security risk factors
+    if alert.get("failed_login_attempts", 0) > 200:
+        score += 25
+    if alert.get("unauthorized_access_attempts", 0) > 50:
+        score += 20
+    if alert.get("port_scan_attempts", 0) > 100:
+        score += 15
+    if alert.get("intrusion_attempts", 0) > 50:
+        score += 20
+
     return min(score, 120)
 
 

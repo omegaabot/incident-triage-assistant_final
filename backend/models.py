@@ -11,6 +11,7 @@ class Rule(Base):
     type = Column(String, nullable=False)
     condition = Column(String, nullable=False)
     severity = Column(String, nullable=False)
+    priority = Column(Integer, default=3)
     message = Column(String, nullable=False)
     action = Column(String, nullable=False)
     checks = Column(JSON, default=list)

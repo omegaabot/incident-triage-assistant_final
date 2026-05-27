@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from fastapi import FastAPI, Request, Form, Depends
+from fastapi import FastAPI, Request, Form, Depends, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -46,8 +46,8 @@ def get_engineers(db):
 def get_rules(db):
     db_rules = db.query(Rule).all()
     if db_rules:
-        return [{"name": r.name, "type": r.type, "condition": r.condition, "severity": r.severity,
-                 "message": r.message, "action": r.action, "checks": r.checks or [],
+        return [{"id": r.id, "name": r.name, "type": r.type, "condition": r.condition, "severity": r.severity,
+                 "priority": r.priority or 3, "message": r.message, "action": r.action, "checks": r.checks or [],
                  "checklist": r.checklist or [], "false_positive_signals": r.false_positive_signals or []} for r in db_rules]
     return []
 
@@ -94,7 +94,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 def triage_form(request: Request):
     return templates.TemplateResponse(request, "triage.html", {
         "result": None,
-        "alert_json": '{\n  "type": "system_monitoring",\n  "service": "payment-api",\n  "cpu_usage": 92,\n  "memory_usage": 85,\n  "error_rate": 60,\n  "response_time": 1200,\n  "status": "degraded"\n}',
+        "alert_json": '{\n  "type": "system_monitoring",\n  "service": "payment-api",\n  "environment": "production",\n  "cpu_usage": 92,\n  "memory_usage": 85,\n  "error_rate": 60,\n  "response_time": 1200,\n  "status": "degraded"\n}',
     })
 
 
@@ -146,7 +146,7 @@ def rules_list(request: Request, search: str = "", rule_type: str = "", db: Sess
     if rule_type:
         filtered = [r for r in filtered if r["type"] == rule_type]
 
-    filtered.sort(key=lambda r: SEVERITY_ORDER.get(r["severity"], 0))
+    filtered.sort(key=lambda r: r.get("priority", 3))
 
     total = len(rules)
     high_count = sum(1 for r in rules if r["severity"] == "HIGH")
@@ -171,6 +171,7 @@ def rules_create(
     rule_type: str = Form(...),
     severity: str = Form(...),
     condition: str = Form(...),
+    priority: int = Form(3),
     message: str = Form(...),
     action: str = Form(...),
     checks: str = Form(""),
@@ -182,6 +183,7 @@ def rules_create(
         name=name,
         type=rule_type,
         severity=severity,
+        priority=priority,
         condition=condition,
         message=message,
         action=action,
@@ -198,6 +200,7 @@ def rules_create(
 @app.get("/playbooks", response_class=HTMLResponse)
 def playbooks_list(request: Request, selected: str = "", db: Session = Depends(get_db)):
     rules = get_rules(db)
+    rules.sort(key=lambda r: SEVERITY_ORDER.get(r["severity"], 0), reverse=True)
     runbook = get_playbooks(db)
     if not selected and rules:
         selected = rules[0]["name"]
@@ -238,6 +241,60 @@ def playbooks_create(
         )
         db.add(pb)
     db.commit()
+    return RedirectResponse(url="/playbooks", status_code=303)
+
+
+# ── IMPORT RULES ──
+@app.post("/rules/import")
+def rules_import(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    try:
+        content = file.file.read().decode("utf-8")
+        data = json.loads(content)
+        if not isinstance(data, list):
+            data = [data]
+        imported = 0
+        errors = []
+        for i, item in enumerate(data):
+            if not all(k in item for k in ("name", "type", "condition", "severity")):
+                errors.append(f"Row {i+1}: missing required fields (name, type, condition, severity)")
+                continue
+            rule = Rule(
+                name=item["name"],
+                type=item["type"],
+                condition=item["condition"],
+                severity=item["severity"],
+                priority=item.get("priority", 3),
+                message=item.get("message", ""),
+                action=item.get("action", ""),
+                checks=item.get("checks", []),
+                checklist=item.get("checklist", []),
+                false_positive_signals=item.get("false_positive_signals", []),
+            )
+            db.add(rule)
+            imported += 1
+        db.commit()
+        return {"imported": imported, "errors": errors}
+    except Exception as e:
+        return {"imported": 0, "errors": [str(e)]}
+
+
+# ── DELETE RULE ──
+@app.post("/rules/{rule_id}/delete")
+def rule_delete(rule_id: int, db: Session = Depends(get_db)):
+    rule = db.query(Rule).filter(Rule.id == rule_id).first()
+    if rule:
+        db.delete(rule)
+        db.commit()
+    return RedirectResponse(url="/rules", status_code=303)
+
+
+# ── DELETE PLAYBOOK ──
+@app.post("/playbooks/{rule_name}/delete")
+def playbook_delete(rule_name: str, db: Session = Depends(get_db)):
+    pb = db.query(Playbook).filter(Playbook.rule_name == rule_name).first()
+    if pb:
+        db.delete(pb)
+        db.commit()
     return RedirectResponse(url="/playbooks", status_code=303)
 
 

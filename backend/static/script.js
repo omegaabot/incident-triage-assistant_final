@@ -1,13 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Sidebar toggle
-  var toggle = document.getElementById('sidebar-toggle');
-  var sidebar = document.getElementById('sidebar');
-  if (toggle && sidebar) {
-    toggle.addEventListener('click', function() {
-      sidebar.classList.toggle('sidebar--collapsed');
-    });
-  }
-
   // Rule card expand/collapse
   document.querySelectorAll('.rule-card-header').forEach(function(header) {
     header.addEventListener('click', function() {
