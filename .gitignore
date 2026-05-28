@@ -37,10 +37,7 @@ venv/
 
 # Project docs (not source)
 FUTURE.md
-# TECHNICAL.md
-# ppt.txt
 architecture.mermaid
-# progress.txt
 SCENARIOS.md
 
 # Runtime logs
