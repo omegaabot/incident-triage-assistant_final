@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Reports</h1>
+    <p class="page-subtitle">Summary statistics and exportable data for the last {{ days }} days</p>
+  </div>
+  <div style="display:flex;gap:var(--space-sm)">
+    <form method="GET" action="/report" style="display:flex;gap:var(--space-sm);align-items:center">
+      <label for="days" style="font-size:13px;color:var(--on-surface-variant)">Period:</label>
+      <select id="days" name="days" class="input" style="width:auto;padding:6px 12px" onchange="this.form.submit()">
+        <option value="1" {% if days == 1 %}selected{% endif %}>24 hours</option>
+        <option value="7" {% if days == 7 %}selected{% endif %}>7 days</option>
+        <option value="30" {% if days == 30 %}selected{% endif %}>30 days</option>
+        <option value="90" {% if days == 90 %}selected{% endif %}>90 days</option>
+      </select>
+    </form>
+    <a href="/report/csv?days={{ days }}" class="btn btn-ghost btn-sm">Export CSV</a>
+    <a href="/report/pdf?days={{ days }}" class="btn btn-primary btn-sm">Download PDF</a>
+  </div>
+</div>
+
+{% if stats.total_alerts > 0 %}
+
+<div class="grid-4 dashboard-stats">
+  <div class="card stat-card">
+    <div class="stat-card-top">
+      <span class="stat-card-label">Total Alerts</span>
+      <span class="stat-card-icon">📊</span>
+    </div>
+    <div class="stat-card-value" style="color:var(--primary)">{{ stats.total_alerts }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-card-top">
+      <span class="stat-card-label">Critical / High</span>
+      <span class="stat-card-icon">🚨</span>
+    </div>
+    <div class="stat-card-value" style="color:var(--critical)">{{ stats.severity_distribution.CRITICAL + stats.severity_distribution.HIGH }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-card-top">
+      <span class="stat-card-label">False Positive Rate</span>
+      <span class="stat-card-icon">🛡️</span>
+    </div>
+    <div class="stat-card-value" style="color:var(--low)">{{ stats.fp_rate }}%</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-card-top">
+      <span class="stat-card-label">Avg Risk Score</span>
+      <span class="stat-card-icon">🎯</span>
+    </div>
+    <div class="stat-card-value" style="color:var(--high)">{{ stats.avg_risk_score }}</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:var(--space-lg)">
+  <div class="card">
+    <h2 class="section-title">Severity Distribution</h2>
+    <div class="severity-dist-list">
+      {% for sev in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] %}
+      {% set count = stats.severity_distribution.get(sev, 0) %}
+      {% set pct = (count / stats.total_alerts * 100) | round %}
+      {% set color = 'var(--critical)' if sev == 'CRITICAL' else 'var(--high)' if sev == 'HIGH' else 'var(--medium)' if sev == 'MEDIUM' else 'var(--low)' %}
+      <div class="severity-dist-row">
+        <span class="severity-dot" style="background:{{ color }}"></span>
+        <span class="severity-dist-label">{{ sev }}</span>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width:{{ pct }}%;background:{{ color }}"></div>
+        </div>
+        <span class="severity-dist-count">{{ count }}</span>
+        <span class="severity-dist-pct">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Top Matched Rules</h2>
+    {% if stats.top_matched_rules %}
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
+      {% for name, count in stats.top_matched_rules.items() %}
+      {% set max_count = stats.top_matched_rules.values() | first %}
+      {% set pct = (count / max_count * 100) | round %}
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span style="color:var(--on-surface)">{{ name }}</span>
+          <span class="mono" style="color:var(--on-surface-variant)">{{ count }}</span>
+        </div>
+        <div class="progress-bar-track" style="height:6px">
+          <div class="progress-bar-fill" style="width:{{ pct }}%;background:var(--cyber-blue);height:6px"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="color:var(--on-surface-variant);font-size:14px;padding:var(--space-md) 0">No rules matched in this period.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:var(--space-lg)">
+  <div class="card">
+    <h2 class="section-title">Top Services</h2>
+    {% if stats.top_services %}
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
+      {% for svc, count in stats.top_services.items() %}
+      {% set max_count = stats.top_services.values() | first %}
+      {% set pct = (count / max_count * 100) | round %}
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span class="mono" style="color:var(--on-surface)">{{ svc }}</span>
+          <span class="mono" style="color:var(--on-surface-variant)">{{ count }}</span>
+        </div>
+        <div class="progress-bar-track" style="height:6px">
+          <div class="progress-bar-fill" style="width:{{ pct }}%;background:var(--tertiary);height:6px"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Alert Type Breakdown</h2>
+    {% if stats.top_types %}
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
+      {% for atype, count in stats.top_types.items() %}
+      {% set max_count = stats.top_types.values() | first %}
+      {% set pct = (count / max_count * 100) | round %}
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span style="color:var(--on-surface);text-transform:capitalize">{{ atype | replace('_', ' ') }}</span>
+          <span class="mono" style="color:var(--on-surface-variant)">{{ count }}</span>
+        </div>
+        <div class="progress-bar-track" style="height:6px">
+          <div class="progress-bar-fill" style="width:{{ pct }}%;background:var(--medium);height:6px"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="margin-top:var(--space-lg)">
+  <h2 class="section-title">Alerts Over Time</h2>
+  <div style="position:relative;height:250px">
+    <canvas id="timeline-chart"></canvas>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var ctx = document.getElementById('timeline-chart');
+  if (!ctx) return;
+
+  fetch('/api/stats/timeline?days={{ days }}')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data || data.length === 0) {
+        ctx.parentElement.innerHTML = '<div style="text-align:center;padding:40px;color:var(--on-surface-variant)">No data for this period.</div>';
+        return;
+      }
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(function(d) { return d.date; }),
+          datasets: [
+            {
+              label: 'Critical',
+              data: data.map(function(d) { return d.CRITICAL; }),
+              backgroundColor: '#ff4757',
+              borderRadius: 3,
+            },
+            {
+              label: 'High',
+              data: data.map(function(d) { return d.HIGH; }),
+              backgroundColor: '#ff6b35',
+              borderRadius: 3,
+            },
+            {
+              label: 'Medium',
+              data: data.map(function(d) { return d.MEDIUM; }),
+              backgroundColor: '#ffa502',
+              borderRadius: 3,
+            },
+            {
+              label: 'Low',
+              data: data.map(function(d) { return d.LOW; }),
+              backgroundColor: '#2ed573',
+              borderRadius: 3,
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e0e0e0', font: { size: 12 } }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: '#9e9e9e', font: { size: 11 } },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y: {
+              stacked: true,
+              ticks: { color: '#9e9e9e', font: { size: 11 } },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    })
+    .catch(function(err) {
+      ctx.parentElement.innerHTML = '<div style="text-align:center;padding:40px;color:var(--critical)">Failed to load chart data.</div>';
+    });
+});
+</script>
+
+{% else %}
+<div class="empty-state" style="min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-container-low);border:1px dashed var(--outline-variant);border-radius:var(--radius-md);padding:var(--space-2xl)">
+  <div style="font-size:48px;margin-bottom:var(--space-md);opacity:0.6">📄</div>
+  <h3 style="font-size:18px;color:var(--on-surface);margin-bottom:8px">No Data Yet</h3>
+  <p style="color:var(--on-surface-variant);font-size:14px;max-width:360px;text-align:center;line-height:1.6">Run triage on alerts to generate reports and analytics.</p>
+  <a href="/triage" class="btn btn-primary" style="margin-top:var(--space-md)">Run Triage →</a>
+</div>
+{% endif %}
+{% endblock %}

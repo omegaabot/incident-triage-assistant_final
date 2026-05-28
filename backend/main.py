@@ -1,16 +1,21 @@
 import json
-from datetime import datetime
-from fastapi import FastAPI, Request, Form, Depends, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse
+import csv
+import io
+from datetime import datetime, timedelta
+from fastapi import FastAPI, Request, Form, Depends, UploadFile, File, Query
+from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pathlib import Path
 
 from backend.database import get_db, init_db
-from backend.models import Rule, Playbook, Engineer, TriageResult
+from backend.models import Rule, Playbook, Engineer, TriageResult, MetricBaseline
 from backend.core.triage import run_triage
 from backend.core.escalation import SEVERITY_ORDER
+from backend.core.anomaly import detect_anomalies, METRIC_FIELDS
+from backend.core.scheduler import scheduler, recompute_baselines
+from backend.core.reporting import generate_csv_report, generate_pdf_report, generate_summary_stats, alerts_over_time
 
 app = FastAPI(title="Incident Triage Assistant")
 
@@ -22,6 +27,8 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 @app.on_event("startup")
 def on_startup():
     init_db()
+    scheduler.start()
+    recompute_baselines()
 
 
 def severity_badge_html(severity):
@@ -296,6 +303,125 @@ def playbook_delete(rule_name: str, db: Session = Depends(get_db)):
         db.delete(pb)
         db.commit()
     return RedirectResponse(url="/playbooks", status_code=303)
+
+
+# ── ANALYTICS API ──
+@app.get("/api/stats")
+def api_stats(days: int = Query(7, ge=1, le=90), db: Session = Depends(get_db)):
+    return generate_summary_stats(db, days)
+
+
+@app.get("/api/stats/timeline")
+def api_timeline(days: int = Query(7, ge=1, le=90), db: Session = Depends(get_db)):
+    return alerts_over_time(db, days)
+
+
+@app.get("/api/stats/alerts")
+def api_alerts(db: Session = Depends(get_db)):
+    results = db.query(TriageResult).order_by(TriageResult.timestamp.desc()).limit(10).all()
+    return [
+        {
+            "id": r.id,
+            "service": r.alert_data.get("service", "") if isinstance(r.alert_data, dict) else "",
+            "type": r.alert_data.get("type", "") if isinstance(r.alert_data, dict) else "",
+            "severity": r.final_severity,
+            "risk_score": r.risk_score,
+            "is_false_positive": r.is_false_positive,
+            "timestamp": r.timestamp.isoformat() if r.timestamp else "",
+        }
+        for r in results
+    ]
+
+
+@app.get("/analytics/metrics")
+def analytics_metrics(db: Session = Depends(get_db)):
+    baselines = db.query(MetricBaseline).all()
+    return [
+        {
+            "id": b.id,
+            "service": b.service,
+            "metric_name": b.metric_name,
+            "mean": b.mean,
+            "stddev": b.stddev,
+            "p50": b.p50,
+            "p95": b.p95,
+            "p99": b.p99,
+            "min_val": b.min_val,
+            "max_val": b.max_val,
+            "sample_count": b.sample_count,
+        }
+        for b in baselines
+    ]
+
+
+@app.post("/analytics/recompute")
+def analytics_recompute(db: Session = Depends(get_db)):
+    recompute_baselines()
+    return {"status": "ok", "message": "Baselines recomputed"}
+
+
+# ── ANOMALY DETECTION ──
+@app.get("/anomaly/check")
+def anomaly_check(alert_json: str = Query(...), db: Session = Depends(get_db)):
+    try:
+        alert = json.loads(alert_json)
+    except json.JSONDecodeError as e:
+        return {"error": f"Invalid JSON: {e}"}
+    baselines = db.query(MetricBaseline).all()
+    anomalies = detect_anomalies(alert, baselines)
+    return {"alert_service": alert.get("service", ""), "anomalies": anomalies, "count": len(anomalies)}
+
+
+@app.get("/anomaly/check-session/{session_id}")
+def anomaly_check_session(session_id: int, db: Session = Depends(get_db)):
+    result = db.query(TriageResult).filter(TriageResult.id == session_id).first()
+    if not result:
+        return {"error": "Session not found"}
+    alert = result.alert_data if isinstance(result.alert_data, dict) else {}
+    baselines = db.query(MetricBaseline).all()
+    anomalies = detect_anomalies(alert, baselines)
+    return {"session_id": session_id, "anomalies": anomalies, "count": len(anomalies)}
+
+
+# ── REPORTS ──
+@app.get("/report/csv")
+def report_csv(days: int = Query(7, ge=1, le=365), db: Session = Depends(get_db)):
+    csv_data = generate_csv_report(db, days)
+    filename = f"triage_report_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    return PlainTextResponse(
+        content=csv_data,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/report/pdf")
+def report_pdf(days: int = Query(7, ge=1, le=365), db: Session = Depends(get_db)):
+    pdf_buf = generate_pdf_report(db, days)
+    filename = f"triage_report_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        pdf_buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/report/summary")
+def report_summary(days: int = Query(7, ge=1, le=90), db: Session = Depends(get_db)):
+    stats = generate_summary_stats(db, days)
+    timeline = alerts_over_time(db, days)
+    return {"stats": stats, "timeline": timeline}
+
+
+@app.get("/report", response_class=HTMLResponse)
+def report_page(request: Request, days: int = Query(7, ge=1, le=365), db: Session = Depends(get_db)):
+    stats = generate_summary_stats(db, days)
+    timeline = alerts_over_time(db, days)
+    return templates.TemplateResponse(request, "report.html", {
+        "stats": stats,
+        "timeline": timeline,
+        "days": days,
+    })
 
 
 # ── HISTORY ──

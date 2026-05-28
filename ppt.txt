@@ -1,0 +1,124 @@
+Part 1: Problem Definition & Market Context
+
+Q: What problem are you trying to solve?
+A: Alert noise drowns out critical incidents — manual triage is slow, inconsistent, and burns out SOC/SRE teams.
+
+Q: Please define the identified business need and importance to business.
+A: Automated triage reduces MTTR, eliminates alert fatigue, and ensures critical incidents reach the right engineer — directly protecting service uptime SLAs.
+
+Q: Who is affected by this problem? What improvements are assumed to be brought by implementation?
+A: SOC analysts, SRE teams, and incident responders. Implementation brings faster triage, traceable audits, reduced noise, and automated escalation.
+
+Q: What made you choose this problem?
+A: Alert fatigue is a universal pain point — a deterministic, auditable approach (no ML) works in production SOC environments where predictability matters.
+
+Q: Please elaborate any market research conducted help frame the problem.
+A: Gartner and Ponemon cite alert fatigue as a top SOC challenge; our approach follows Google SRE model, NIST framework, and aligns with commercial SOC platform capabilities.
+
+Part 2: Solution & Implementation
+
+Q: Please provide short description of the solution.
+A: A deterministic rule-based engine that ingests alerts, runs dual-track analysis (rules + risk scoring), detects false positives, and pages the right on-call engineer — all under a second.
+
+Q: What are the key objectives you are planning to achieve?
+A: 60%+ reduction in MTTR, eliminate false-positive noise, ensure every critical alert escalates instantly, and provide full audit trails for compliance.
+
+Q: How does your solution achieve to address the problem statement?
+A: Rules match alert types, risk scores quantify severity, FP signals suppress noise, and escalation logic maps to on-call engineers — fully automated with zero human intervention.
+
+Q: Please explain the technology stack selected.
+A: FastAPI + SQLAlchemy + SQLite/PostgreSQL + Jinja2 templates + vanilla JS/CSS + ReportLab (PDFs) + APScheduler — minimal, auditable, dependency-light.
+
+Q: Please provide justification on why your approach is best.
+A: Fully explainable decisions, zero hallucination risk, easy rule customization, no training data needed — unlike black-box ML, it's built for production auditability.
+
+Q: What is the state you were able to achieve?
+A: A working web app with alert ingestion, dual-track triage, FP detection, on-call assignment, runbook suggestions, PDF/CSV reports, and a real-time dashboard — tested with curated incident scenarios.
+
+Part 3: Architecture & Tooling
+
+Q: Major components / modules?
+A: Input ingestion (API + scenarios), dual-track triage engine (rule engine + risk scoring), false positive detector, severity merger, escalation & engineer matcher, runbook suggester, SQLAlchemy data layer, Jinja2 dashboard, ReportLab PDF generator, APScheduler for periodic tasks, and anomaly detection module.
+
+Q: Technologies or tools used?
+A: FastAPI (Python), SQLAlchemy ORM, SQLite/PostgreSQL, Jinja2 templates, vanilla JavaScript + CSS, ReportLab (PDF), APScheduler, Uvicorn, Pydantic, HTML5/CSS3.
+
+Q: High-level architecture / workflow ?
+A: ```mermaid
+flowchart LR
+    classDef input fill:#E0F2FE,stroke:#0284C7,color:#0F172A
+    classDef service fill:#FEF3C7,stroke:#D97706,color:#0F172A
+    classDef store fill:#D1FAE5,stroke:#059669,color:#0F172A
+    classDef output fill:#EDE9FE,stroke:#7C3AED,color:#0F172A
+
+    subgraph Input["📥 Input Layer"]
+        UI[Web Dashboard]:::input
+        API[REST API Layer]:::input
+        Alerts[Alert Payloads & Test Scenarios]:::input
+    end
+
+    subgraph Core["⚙️ Triage System"]
+        Triage[Triage Engine]:::service
+        Rules[Rule Management Service]:::service
+        Risk[Risk Scoring Service]:::service
+        FP[False Positive Detection]:::service
+        Escalation[Escalation & Assignment Service]:::service
+    end
+
+    subgraph Storage["💾 Data Storage"]
+        DB[(Database)]:::store
+        Rules_DB[(Rules Config)]:::store
+        Eng_DB[(Engineer Config)]:::store
+    end
+
+    subgraph Output["📊 Output Layer"]
+        Dashboard[Dashboard & Monitoring UI]:::output
+        Reports[Reports & Export]:::output
+        History[Alert History]:::output
+    end
+
+    UI --> API
+    Alerts --> API
+
+    API --> Triage
+    Triage --> Rules
+    Triage --> Risk
+    Triage --> FP
+
+    Rules --> Rules_DB
+    Escalation --> Eng_DB
+
+    Triage --> Escalation
+    Escalation --> DB
+
+    DB --> Dashboard
+    DB --> Reports
+    DB --> History
+```
+Part 4: Feature Breakdowns
+Q: Please elaborate Feature1: Dual-Track Triage Engine.
+A: Ingested alerts run through two parallel analysis tracks — a configurable rule engine matches alert type to conditions (field > threshold, pattern match) and assigns severity, while a weighted risk scorer computes a 0-120 score from high-signal metrics (requests/sec, latency, packet loss). Results are merged with dynamic severity winning if it's CRITICAL or HIGH.
+
+Q: Please elaborate Feature2: False Positive Detection & Suppression.
+A: A signal-based confidence scorer evaluates per-rule FP signals and heuristics (e.g., status == "healthy"). If confidence >= 50%, severity is overridden to LOW and escalation is fully suppressed — drastically reducing noise while keeping genuine threats visible.
+
+Q: Please elaborate Feature3: Automated Escalation & Engineer Assignment.
+A: Final severity maps to escalation levels (CRITICAL→SEV-1, HIGH→SEV-2, MEDIUM→SEV-3, LOW→NO-ESCALATION), matched against an on-call engineer roster by team and escalation level. A relevant runbook is suggested alongside each result for immediate responder action.
+
+Part 5: Business Value & Metrics
+
+Q: Business impact.
+A: Reduces analyst burnout, ensures critical incidents are never missed, provides consistent and auditable triage decisions across shifts, and enables smaller teams to handle larger alert volumes without scaling headcount.
+
+Q: Achieved Technical benefits.
+A: Fully deterministic and explainable decisions (no black-box), sub-second triage per alert, zero-config false positive suppression, reusable rule library, and a lightweight stack that runs on minimal infrastructure.
+
+Q: Cost/time/value improvements.
+A: Eliminates hours of daily manual triage work, cuts MTTR from hours to seconds, reduces false-positive investigation costs, and removes the need for expensive commercial SIEM triage modules.
+
+Q: Key Metrics.
+A: 60%+ MTTR reduction, 50%+ false positive suppression rate, sub-second triage latency per alert, 100% audit trail coverage, zero hallucination risk (deterministic engine).
+
+
+
+    

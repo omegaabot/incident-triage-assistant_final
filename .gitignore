@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+.env
+
+# Database
+*.db
+*.sqlite
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +34,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project docs (not source)
+FUTURE.md
+# TECHNICAL.md
+# ppt.txt
+architecture.mermaid
+# progress.txt
+SCENARIOS.md
+
+# Runtime logs
+uvicorn_*.txt
+uvicorn_err.txt
+uvicorn_out.txt

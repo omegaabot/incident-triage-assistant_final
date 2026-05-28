@@ -6,12 +6,14 @@
   <title>Incident Triage Assistant</title>
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="app-layout">
     {% set nav_items = [
       ('/', 'dashboard', 'Dashboard'),
       ('/triage', 'triage', 'Triage Alert'),
+      ('/report', 'report', 'Reports'),
       ('/rules', 'rules', 'Rules Engine'),
       ('/playbooks', 'playbook', 'Playbook'),
       ('/history', 'history', 'History'),
@@ -29,10 +31,7 @@
           <span class="sidebar-logo-sub">Sentinel Interface</span>
         </div>
       </div>
-      <div class="sidebar-status">
-        <span class="status-dot status-dot--live"></span>
-        <span class="status-text">System Active</span>
-      </div>
+
       <nav class="sidebar-nav">
         <p class="sidebar-nav-label">NAVIGATION</p>
         {% for href, id, label in nav_items %}
@@ -48,6 +47,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             {% elif id == 'history' %}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 11 11 11"/></svg>
+            {% elif id == 'report' %}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             {% endif %}
           </span>
           <span class="sidebar-nav-label-text">{{ label }}</span>

@@ -1,57 +1,206 @@
-=== Incident Triage Assistant - Progress Log ===
+╔══════════════════════════════════════════════════════════════╗
+║        INCIDENT TRIAGE ASSISTANT — PROJECT OVERVIEW          ║
+╚══════════════════════════════════════════════════════════════╝
 
-## Phase 1: Remove Sample Data & React Frontend [Done]
-- Deleted: data/*.json, SCENARIOS.md
-- Deleted: src/pages/, src/components/, src/triageEngine.js, src/App.jsx, src/main.jsx, src/index.css, src/App.css, src/assets/, public/, dist/
-- Deleted: package.json, vite.config.js, index.html, eslint.config.js, package-lock.json
-- Deleted: output/reports.txt, src/__pycache__/
+=======================================================================
+1. WHAT IS THIS PROJECT?
+=======================================================================
 
-## Phase 2: Core Python Library [Done]
-- Created: backend/core/__init__.py, rule_engine.py, escalation.py, triage.py
-- Refactored CLI scripts into pure function-based library
+A deterministic, rule-based incident triage engine built with FastAPI.
+It ingests monitoring alerts (JSON), runs dual-track analysis (rules +
+risk scoring), detects false positives, assigns severity, and pages the
+right on-call engineer — all in under a second with zero ML.
 
-## Phase 3: Database Layer [Done]
-- Created: backend/database.py (SQLAlchemy engine, SessionLocal, get_db, init_db)
-- Created: backend/models.py (ORM: Rule, Playbook, Engineer, TriageResult)
-- Created: backend/schemas.py (Pydantic: AlertInput, RuleCreate, PlaybookCreate)
-- Created: backend/seed.py (seeds 10 rules, 10 playbooks, 3 engineers)
+=======================================================================
+2. DIRECTORY STRUCTURE
+=======================================================================
 
-## Phase 4: FastAPI Backend [Done]
-- Created: backend/main.py (FastAPI app with all routes)
-- Routes: GET / (dashboard), GET/POST /triage, GET/POST /rules, GET/POST /playbooks, GET /history
+├── backend/
+│   ├── main.py                    # FastAPI app — routes, middleware
+│   ├── database.py                # SQLAlchemy engine & session
+│   ├── models.py                  # ORM models (TriageResult, Rule, etc.)
+│   ├── schemas.py                 # Pydantic request/response schemas
+│   ├── seed.py                    # Seed initial rules & engineers
+│   ├── requirements.txt           # Python dependencies
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── triage.py              # Main triage orchestration
+│   │   ├── rule_engine.py         # Rule matching & condition eval
+│   │   ├── escalation.py          # Severity → engineer mapping
+│   │   ├── reporting.py           # PDF & CSV report generation
+│   │   ├── anomaly.py             # Z-score metric anomaly detection
+│   │   └── scheduler.py           # APScheduler periodic tasks
+│   ├── static/
+│   │   ├── style.css              # Dashboard CSS (dark SOC theme)
+│   │   └── script.js              # Dashboard JS
+│   └── templates/
+│       ├── base.html              # Base Jinja2 layout
+│       ├── dashboard.html         # Main dashboard page
+│       ├── triage.html            # Triage alert submission page
+│       ├── history.html           # Past triage sessions
+│       ├── rules.html             # Rules CRUD management
+│       ├── playbooks.html         # Runbook library
+│       └── report.html            # Reports & export page
+├── config/
+│   └── engineers.json             # On-call engineer roster
+├── rules/
+│   └── rules.json                 # Triage rule definitions
+├── runbook/
+│   └── runbook.md                 # Incident response runbooks
+├── all_test_scenarios.json        # Pre-built alert test scenarios
+├── .gitignore
+├── README.md
+├── FUTURE.md                      # Future roadmap (gitignored)
+├── TECHNiCAL.md                   # Technical design (gitignored)
+├── architecture.mermaid           # Architecture diagram (gitignored)
+├── ppt.txt                        # Presentation notes (gitignored)
+└── progress.txt                   # This file (gitignored)
 
-## Phase 5: Static Assets [Done]
-- Created: backend/static/style.css (~550 lines, full design system)
-- Created: backend/static/script.js (sidebar, tabs, checklists, history)
+=======================================================================
+3. CORE WORKFLOW
+=======================================================================
 
-## Phase 6: Jinja2 Templates [Done]
-- Created: backend/templates/base.html, dashboard.html, triage.html
-- Created: backend/templates/rules.html, playbooks.html, history.html
-- Created: backend/requirements.txt
+INCOMING ALERT (JSON)
+    │
+    ▼
+┌─────────────────────────────────────────┐
+│  TRIAGE ENGINE                          │
+│                                         │
+│  Track A: Rule Engine                   │
+│  ├── Load rules matching alert type     │
+│  ├── Evaluate conditions (field > val)  │
+│  └── Assign severity (CRIT/HIGH/MED/LOW)│
+│                                         │
+│  Track B: Risk Score                    │
+│  ├── Extract metrics (req/sec, latency) │
+│  ├── Compute weighted score (0-120)     │
+│  └── Map to severity                    │
+│                                         │
+│  Severity Merge                         │
+│  ├── Dynamic wins if CRITICAL/HIGH      │
+│  └── Otherwise rule severity wins       │
+│                                         │
+│  False Positive Detection               │
+│  ├── Evaluate per-rule FP signals       │
+│  ├── Compute confidence (0-100%)        │
+│  └── If >= 50%: override → LOW,         │
+│      suppress escalation                │
+│                                         │
+│  Escalation                             │
+│  ├── Map severity to level              │
+│  │   CRITICAL → SEV-1                   │
+│  │   HIGH     → SEV-2                   │
+│  │   MEDIUM   → SEV-3                   │
+│  │   LOW      → NO-ESCALATION           │
+│  ├── Match on-call engineer             │
+│  └── Suggest runbook                    │
+└─────────────────────────────────────────┘
+    │
+    ▼
+DATABASE (SQLite/PostgreSQL)
+    │
+    ▼
+DASHBOARD / REPORTS / HISTORY
 
-## Phase 7: PostgreSQL Migration [Done]
-- Switched default DATABASE_URL from SQLite to PostgreSQL
-- Database auto-creates on first connection if missing
-- Added psycopg2-binary to requirements.txt
-- Connection: postgresql://postgres:Post%401234@localhost:5432/incident_triage
-- Set via DATABASE_URL env var or defaults to above
+=======================================================================
+4. KEY FEATURES
+=======================================================================
 
-## Phase 8: Consolidated Tests & Bugfixes [Done]
-- Discovered and patched FastAPI/Starlette TemplateResponse signature incompatibility bug for Starlette 1.0+
-- Created consolidated direct copy-pasteable JSON testing suites (all_test_scenarios.json)
-- Purged legacy `src/` directory and redundant temporary JSON files
+  1. Dual-Track Triage Engine
+     - Parallel rule + risk analysis
+     - Configurable rule conditions per alert type
+     - Weighted risk scoring (0-120)
 
-## Tech Stack Used
-- Backend: FastAPI + SQLAlchemy + Jinja2
-- Database: PostgreSQL (with local SQLite fallback)
-- Frontend: Server-side Jinja2 templates
-- Styling: Vanilla CSS (dark technical design system)
-- Scripting: Vanilla JS (tabs, checklists, search)
+  2. False Positive Detection
+     - Signal-based confidence scoring
+     - >50% confidence → auto-suppress escalation
+     - Keeps genuine threats visible
 
-## How to Run
-1. .\venv\Scripts\activate
-2. pip install -r backend/requirements.txt
-3. $env:DATABASE_URL="sqlite:///./incident_triage.db"; .\venv\Scripts\python.exe -m backend.seed
-4. $env:DATABASE_URL="sqlite:///./incident_triage.db"; .\venv\Scripts\python.exe -m uvicorn backend.main:app --port 8888
-5. Open http://localhost:8888
+  3. Automated Escalation
+     - Severity → escalation level mapping
+     - On-call engineer matching by team/level
+     - Runbook suggestions per incident type
 
+  4. Dashboard & Reports
+     - Real-time KPI cards (total alerts, crit/high, FP, active rules)
+     - Alert feed with severity badges
+     - Severity donut chart & timeline
+     - PDF export (clean modern theme)
+     - CSV export
+
+  5. Rules Management
+     - Full CRUD for triage rules
+     - Enable/disable individual rules
+     - Bulk import from JSON
+     - Per-rule FP signals configuration
+
+  6. Playbooks / Runbooks
+     - Library of incident response runbooks
+     - Trigger conditions per playbook
+     - Step-by-step resolution guides
+
+  7. Anomaly Detection
+     - Z-score based metric analysis
+     - Periodic baseline recomputation
+     - Supports latency, traffic, error rate fields
+
+=======================================================================
+5. TECH STACK
+=======================================================================
+
+  Backend:    FastAPI (Python 3.14), Uvicorn
+  ORM:        SQLAlchemy 2.x
+  Database:   SQLite (dev) / PostgreSQL (prod)
+  Templates:  Jinja2
+  Frontend:   Vanilla JavaScript, CSS3 (custom properties)
+  PDF:        ReportLab
+  Scheduler:  APScheduler
+  Validation: Pydantic v2
+
+=======================================================================
+6. RUNNING THE PROJECT
+=======================================================================
+
+  cd backend
+  pip install -r requirements.txt
+  uvicorn backend.main:app --host 0.0.0.0 --port 9988
+
+  Open http://localhost:9988 in browser.
+
+  API endpoints:
+    GET  /                  → Dashboard
+    GET  /triage            → Triage page
+    POST /triage            → Submit alert for triage
+    GET  /rules             → Rules management page
+    POST /rules             → Create new rule
+    GET  /playbooks         → Playbooks page
+    GET  /report            → Reports page
+    GET  /report/pdf        → Download PDF report
+    GET  /report/csv        → Download CSV report
+    GET  /history           → Alert history
+    GET  /api/stats/summary → JSON stats summary
+    GET  /api/stats/timeline→ JSON timeline data
+
+=======================================================================
+7. STATUS — WHAT'S IMPLEMENTED
+=======================================================================
+
+  ✅ Alert ingestion & triage pipeline
+  ✅ Dual-track rule engine + risk scoring
+  ✅ False positive detection with confidence override
+  ✅ Severity merge logic
+  ✅ Automated on-call engineer assignment
+  ✅ Runbook suggestions
+  ✅ Web dashboard with dark SOC theme
+  ✅ KPI cards, alert feed, severity donut, timeline
+  ✅ Rules CRUD (create, read, update, delete)
+  ✅ Rules enable/disable toggle
+  ✅ Bulk rule import from JSON
+  ✅ Playbook/runbook library
+  ✅ PDF report generation (clean Stripe-style)
+  ✅ CSV report export
+  ✅ Alert history with search/filter
+  ✅ Metric anomaly detection
+  ✅ Periodic baseline recomputation
+  ✅ Pre-built test scenarios (DDoS, brute force, port scan, etc.)
+  ✅ On-call engineer roster management

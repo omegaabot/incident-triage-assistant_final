@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, Float
 from backend.database import Base
 
 
@@ -58,3 +58,21 @@ class TriageResult(Base):
     engineer_name = Column(String, nullable=True)
     matched_rule_names = Column(JSON, default=list)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+
+class MetricBaseline(Base):
+    __tablename__ = "metric_baselines"
+
+    id = Column(Integer, primary_key=True, index=True)
+    service = Column(String, nullable=False)
+    metric_name = Column(String, nullable=False)
+    mean = Column(Float, default=0.0)
+    stddev = Column(Float, default=0.0)
+    p50 = Column(Float, default=0.0)
+    p95 = Column(Float, default=0.0)
+    p99 = Column(Float, default=0.0)
+    min_val = Column(Float, default=0.0)
+    max_val = Column(Float, default=0.0)
+    sample_count = Column(Integer, default=0)
+    window_hours = Column(Integer, default=168)
+    updated_at = Column(DateTime, default=datetime.utcnow)
